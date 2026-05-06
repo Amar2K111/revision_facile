@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import AuthUserAvatar from "../components/AuthUserAvatar";
+import { POST_LOGIN_DEFAULT_PATH } from "../lib/authRedirects";
+import { createSupabaseServerClient } from "../lib/supabase/server";
 
 const AUTH_REVISER = "/auth/signin?next=/reviser";
 
@@ -9,7 +12,15 @@ export const metadata = {
     "Fiches de révision intelligentes pour le Brevet, le Bac et le BTS : essentiel, programme dense et astuces — générées à partir du programme.",
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    redirect(POST_LOGIN_DEFAULT_PATH);
+  }
+
   return (
     <div className="min-h-dvh bg-gradient-to-b from-indigo-50/80 via-slate-50 to-slate-50">
       <header className="sticky top-0 z-20 border-b border-slate-200/70 bg-slate-50/85 backdrop-blur-md">

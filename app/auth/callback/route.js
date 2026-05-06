@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "../../../lib/supabase/server";
-import { sanitizeNextPath } from "../../../lib/authRedirects";
+import { POST_LOGIN_DEFAULT_PATH, sanitizeNextPath } from "../../../lib/authRedirects";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -11,12 +11,13 @@ export async function GET(request) {
     const supabase = await createSupabaseServerClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      const dest = new URL(next, request.url);
+      const dest = new URL(next || POST_LOGIN_DEFAULT_PATH, request.url);
       return NextResponse.redirect(dest);
     }
   }
 
   const fail = new URL("/auth/signin", request.url);
   fail.searchParams.set("error", "oauth");
+  fail.searchParams.set("next", POST_LOGIN_DEFAULT_PATH);
   return NextResponse.redirect(fail);
 }
