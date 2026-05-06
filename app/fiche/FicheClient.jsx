@@ -132,29 +132,33 @@ export default function FicheClient() {
         </div>
 
         <div
-          ref={pdfCaptureRef}
-          className={`rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6 print:border-0 print:bg-transparent print:p-0 print:shadow-none ${hasQuiz ? "mt-6 sm:mt-7" : "mt-6 sm:mt-8"}`}
+          className={`rounded-2xl border border-slate-100 bg-white shadow-sm print:border-0 print:bg-transparent print:shadow-none ${hasQuiz ? "mt-6 sm:mt-7" : "mt-6 sm:mt-8"}`}
         >
-          {meta ? (
-            <p className="mb-4 text-center text-sm text-slate-600 print:text-slate-500">
-              <span className="font-medium text-slate-800">{meta.topicLabel}</span>
-              {" · "}
-              {meta.subjectName} — {meta.classLabel}
-            </p>
-          ) : null}
+          <div
+            ref={pdfCaptureRef}
+            className="p-4 sm:p-6 print:border-0 print:bg-transparent print:p-0"
+          >
+            {meta ? (
+              <p className="mb-4 text-center text-sm text-slate-600 print:text-slate-500">
+                <span className="font-medium text-slate-800">{meta.topicLabel}</span>
+                {" · "}
+                {meta.subjectName} — {meta.classLabel}
+              </p>
+            ) : null}
 
-          <PagedMarkdownFiche key={markdown} markdown={markdown} exportMode={pdfExportMode} />
+            <PagedMarkdownFiche key={markdown} markdown={markdown} exportMode={pdfExportMode} />
 
-          <footer className="mt-8 text-center text-[11px] text-slate-500 print:mt-6 print:text-slate-400">
-            Fiche générée avec Révision facile — usage personnel pour réviser.
-          </footer>
-        </div>
-
-        {hasQuiz ? (
-          <div className="mt-5 print:hidden sm:mt-6">
-            <PracticeQuiz practiceQuiz={practiceQuiz} />
+            <footer className="mt-8 text-center text-[11px] text-slate-500 print:mt-6 print:text-slate-400">
+              Fiche générée avec Révision facile — usage personnel pour réviser.
+            </footer>
           </div>
-        ) : null}
+
+          {hasQuiz ? (
+            <div className="border-t border-slate-100 px-4 pb-5 pt-6 print:hidden sm:px-6 sm:pb-6">
+              <PracticeQuiz practiceQuiz={practiceQuiz} pdfExportHidden={pdfExportMode} />
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   );
