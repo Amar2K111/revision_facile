@@ -68,7 +68,7 @@ function PageTurnIcon({ className }) {
   );
 }
 
-export default function PagedMarkdownFiche({ markdown, exportMode = false }) {
+export default function PagedMarkdownFiche({ markdown }) {
   const pages = splitFichePages(markdown);
   const [index, setIndex] = useState(0);
 
@@ -81,23 +81,17 @@ export default function PagedMarkdownFiche({ markdown, exportMode = false }) {
   }, [last]);
 
   useEffect(() => {
-    if (exportMode) {
-      return;
-    }
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [index, exportMode]);
+  }, [index]);
 
   useEffect(() => {
-    if (exportMode) {
-      return undefined;
-    }
     function onKey(e) {
       if (e.key === "ArrowLeft") goPrev();
       if (e.key === "ArrowRight") goNext();
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [exportMode, goPrev, goNext]);
+  }, [goPrev, goNext]);
 
   return (
     <div className="space-y-4">
@@ -106,9 +100,7 @@ export default function PagedMarkdownFiche({ markdown, exportMode = false }) {
           <div
             key={i}
             className={
-              exportMode || i === index
-                ? "block"
-                : "hidden print:block print:break-inside-avoid"
+              i === index ? "block" : "hidden print:block print:break-inside-avoid"
             }
           >
             <FicheMarkdownSection
@@ -119,7 +111,7 @@ export default function PagedMarkdownFiche({ markdown, exportMode = false }) {
         ))}
       </div>
 
-      {pages.length > 1 && !exportMode ? (
+      {pages.length > 1 ? (
         <div className="print:hidden">
           <div className="flex flex-col items-center gap-3 rounded-2xl border border-indigo-100/80 bg-indigo-50/40 px-4 py-4 sm:flex-row sm:justify-center sm:gap-6">
             <button
@@ -161,7 +153,7 @@ export default function PagedMarkdownFiche({ markdown, exportMode = false }) {
             Flèches gauche / droite du clavier
           </p>
         </div>
-      ) : pages.length === 1 && !exportMode ? (
+      ) : pages.length === 1 ? (
         <div className="print:hidden">
           <div className="flex justify-center rounded-2xl border border-indigo-100/80 bg-indigo-50/40 px-4 py-4">
             <Link
