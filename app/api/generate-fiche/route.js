@@ -3,7 +3,9 @@ import { getMath3eDirectiveByTopic } from "../../../data/math3emeExpertDirective
 import { createSupabaseServerClient } from "../../../lib/supabase/server";
 import {
   buildGeminiUserMessage,
+  buildPracticeQuizFragmentUserMessage,
   GENERIC_EXPERT_DIRECTIVE,
+  getPracticeQuizFragmentSystemPrompt,
   getRevisionFacileSystemPrompt,
 } from "../../../lib/revisionFacilePrompt";
 import { extractPracticeQuizFence } from "../../../lib/parseFlashrevisQuiz";
@@ -104,12 +106,39 @@ export async function POST(request) {
   try {
     const result = await model.generateContent(userText);
     const raw = result.response.text()?.trim() ?? "";
-    const { markdown, practiceQuiz } = extractPracticeQuizFence(raw);
+    let { markdown, practiceQuiz } = extractPracticeQuizFence(raw);
 
     if (!markdown) {
       return Response.json({
         error: "Réponse vide du modèle. Réessaie ou définis GEMINI_MODEL dans .env.local.",
       }, { status: 502 });
+    }
+
+    /** Souvent vide à la Terminale si la sortie est tronquée avant le bloc JSON : on régénère uniquement le quiz. */
+    if (!Array.isArray(practiceQuiz) || practiceQuiz.length === 0) {
+      const quizModel = genAI.getGenerativeModel({
+        model: modelName,
+        systemInstruction: getPracticeQuizFragmentSystemPrompt(),
+      });
+      const quizUserText = buildPracticeQuizFragmentUserMessage({
+        examLabel: examLabelFromClassId(classId),
+        classLabel,
+        subjectName,
+        topicLabel,
+        sheetMarkdownBody: markdown,
+      });
+      for (let attempt = 0; attempt < 2 && practiceQuiz.length === 0; attempt++) {
+        try {
+          const quizResult = await quizModel.generateContent(quizUserText);
+          const quizRaw = quizResult.response.text()?.trim() ?? "";
+          const extracted = extractPracticeQuizFence(quizRaw);
+          if (extracted.practiceQuiz.length > 0) {
+            practiceQuiz = extracted.practiceQuiz;
+          }
+        } catch {
+          /* Deuxième essai après échec réseau/API ; puis on abandonne sans bloquer la fiche. */
+        }
+      }
     }
 
     return Response.json({
