@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Créer une fiche",
+  title: "Révision Express",
   description:
     "Choisis ton niveau, ta matière et ton sujet pour générer une fiche Révision facile.",
 };
