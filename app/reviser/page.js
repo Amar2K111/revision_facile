@@ -249,10 +249,10 @@ export default function ReviserPage() {
 
                 <div className="pointer-events-none flex min-w-0 flex-col items-center justify-center px-1 text-center sm:px-2">
                   <h1 className="min-w-0 text-center font-[family-name:var(--font-geist-sans)] text-[0.95rem] font-semibold leading-snug tracking-tight text-slate-900 min-[400px]:whitespace-nowrap sm:text-xl md:text-2xl md:leading-tight lg:text-3xl xl:text-4xl">
-                    Fiche de révision complète
+                    RevisionFacile.com
                   </h1>
                   <p className="mt-2 text-center text-xs font-semibold uppercase tracking-widest text-indigo-600/90 sm:mt-2.5">
-                    Révision facile
+                    Fiche de revision + quiz
                   </p>
                 </div>
 
