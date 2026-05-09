@@ -9,9 +9,36 @@ import {
   getRevisionFacileSystemPrompt,
 } from "../../../lib/revisionFacilePrompt";
 import { extractPracticeQuizFence } from "../../../lib/parseFlashrevisQuiz";
+import {
+  countValidPracticeQuizQuestions,
+  mergePracticeQuizDedup,
+  PRACTICE_QUIZ_MIN_REQUIRED,
+  PRACTICE_QUIZ_QUESTION_TARGET,
+} from "../../../lib/practiceQuizShared";
 
 /** Modèle stable conseillé ; `gemini-1.5-flash` n’est plus disponible sur l’API v1beta. */
 const DEFAULT_MODEL = "gemini-2.5-flash";
+
+/** Limite tokens : la fiche + JSON est longue ; une sortie courte tronque souvent le quiz. */
+const FICHE_GENERATION_CONFIG = { maxOutputTokens: 16_384 };
+const QUIZ_GENERATION_CONFIG = { maxOutputTokens: 8192 };
+
+/** Appels quiz « plein lot » puis passes « uniquement les manquantes » — la fusion déduplique les répétitions. */
+const QUIZ_SUPPLEMENT_MAX = 14;
+const QUIZ_TOP_UP_MAX_ROUNDS = 14;
+
+/**
+ * @param {*} model Instance `GenerativeModel` (@google/generative-ai).
+ * @param {{ maxOutputTokens?: number }} [generationConfig]
+ */
+async function generateModelText(model, userText, generationConfig) {
+  const payload =
+    typeof generationConfig === "object" && generationConfig !== null
+      ? { contents: [{ role: "user", parts: [{ text: userText }] }], generationConfig }
+      : { contents: [{ role: "user", parts: [{ text: userText }] }] };
+  const result = await model.generateContent(payload);
+  return result.response.text()?.trim() ?? "";
+}
 
 function examLabelFromClassId(classId) {
   if (classId === "term") return "Bac";
@@ -88,6 +115,7 @@ export async function POST(request) {
     topicLabel,
   );
 
+  const examLabel = examLabelFromClassId(classId);
   const modelName = process.env.GEMINI_MODEL?.trim() || DEFAULT_MODEL;
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
@@ -99,13 +127,12 @@ export async function POST(request) {
     classLabel,
     subjectName,
     topicLabel,
-    examLabel: examLabelFromClassId(classId),
+    examLabel,
     expertDirective: directive,
   });
 
   try {
-    const result = await model.generateContent(userText);
-    const raw = result.response.text()?.trim() ?? "";
+    const raw = await generateModelText(model, userText, FICHE_GENERATION_CONFIG);
     let { markdown, practiceQuiz } = extractPracticeQuizFence(raw);
 
     if (!markdown) {
@@ -114,31 +141,88 @@ export async function POST(request) {
       }, { status: 502 });
     }
 
-    /** Souvent vide à la Terminale si la sortie est tronquée avant le bloc JSON : on régénère uniquement le quiz. */
-    if (!Array.isArray(practiceQuiz) || practiceQuiz.length === 0) {
-      const quizModel = genAI.getGenerativeModel({
-        model: modelName,
-        systemInstruction: getPracticeQuizFragmentSystemPrompt(),
-      });
-      const quizUserText = buildPracticeQuizFragmentUserMessage({
-        examLabel: examLabelFromClassId(classId),
+    /** @type {unknown[][]} */
+    const quizSlices = [];
+    quizSlices.push(practiceQuiz);
+    practiceQuiz = mergePracticeQuizDedup(quizSlices);
+
+    if (countValidPracticeQuizQuestions(practiceQuiz) < PRACTICE_QUIZ_QUESTION_TARGET) {
+      const quizUserTextBase = buildPracticeQuizFragmentUserMessage({
+        examLabel,
         classLabel,
         subjectName,
         topicLabel,
         sheetMarkdownBody: markdown,
       });
-      for (let attempt = 0; attempt < 2 && practiceQuiz.length === 0; attempt++) {
+      const supplementQuizModel = genAI.getGenerativeModel({
+        model: modelName,
+        systemInstruction: getPracticeQuizFragmentSystemPrompt(
+          PRACTICE_QUIZ_QUESTION_TARGET,
+        ),
+      });
+      let supplement = 0;
+      while (
+        supplement < QUIZ_SUPPLEMENT_MAX &&
+        countValidPracticeQuizQuestions(practiceQuiz) < PRACTICE_QUIZ_QUESTION_TARGET
+      ) {
+        supplement++;
         try {
-          const quizResult = await quizModel.generateContent(quizUserText);
-          const quizRaw = quizResult.response.text()?.trim() ?? "";
+          const quizRaw = await generateModelText(
+            supplementQuizModel,
+            quizUserTextBase,
+            QUIZ_GENERATION_CONFIG,
+          );
           const extracted = extractPracticeQuizFence(quizRaw);
-          if (extracted.practiceQuiz.length > 0) {
-            practiceQuiz = extracted.practiceQuiz;
-          }
+          quizSlices.push(extracted.practiceQuiz);
+          practiceQuiz = mergePracticeQuizDedup(quizSlices);
         } catch {
-          /* Deuxième essai après échec réseau/API ; puis on abandonne sans bloquer la fiche. */
+          /* nouvel essai après échec réseau/API */
         }
       }
+    }
+
+    let topUps = 0;
+    while (
+      topUps < QUIZ_TOP_UP_MAX_ROUNDS &&
+      countValidPracticeQuizQuestions(practiceQuiz) < PRACTICE_QUIZ_QUESTION_TARGET
+    ) {
+      topUps++;
+      const missing =
+        PRACTICE_QUIZ_QUESTION_TARGET - countValidPracticeQuizQuestions(practiceQuiz);
+      const topUpQuizModel = genAI.getGenerativeModel({
+        model: modelName,
+        systemInstruction: getPracticeQuizFragmentSystemPrompt(missing),
+      });
+      const topUpUserText = buildPracticeQuizFragmentUserMessage({
+        examLabel,
+        classLabel,
+        subjectName,
+        topicLabel,
+        sheetMarkdownBody: markdown,
+        questionCount: missing,
+      });
+      try {
+        const quizRaw = await generateModelText(
+          topUpQuizModel,
+          topUpUserText,
+          QUIZ_GENERATION_CONFIG,
+        );
+        const extracted = extractPracticeQuizFence(quizRaw);
+        quizSlices.push(extracted.practiceQuiz);
+        practiceQuiz = mergePracticeQuizDedup(quizSlices);
+      } catch {
+        /* nouvel essai après échec réseau/API */
+      }
+    }
+
+    if (countValidPracticeQuizQuestions(practiceQuiz) < PRACTICE_QUIZ_MIN_REQUIRED) {
+      return Response.json(
+        {
+          error:
+            "Aucun QCM valide n’a pu être extrait pour cette fiche. Réessaie dans un instant.",
+        },
+        { status: 502 },
+      );
     }
 
     return Response.json({
