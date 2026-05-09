@@ -1,7 +1,7 @@
 import FicheClient from "./FicheClient";
 
 export const metadata = {
-  title: "Fiche — Révision express",
+  title: "Fiche — Révision Facile",
   description: "Fiche de révision générée avec Révision facile.",
 };
 

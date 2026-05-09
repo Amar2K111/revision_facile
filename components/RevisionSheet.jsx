@@ -51,7 +51,7 @@ export default function RevisionSheet({ sheet }) {
       </div>
 
       <footer className="border-t border-amber-900/10 px-6 py-4 text-center text-[11px] text-slate-500 sm:px-10 print:text-slate-400">
-        Fiche générée par Révision express — usage personnel pour préparer le Brevet.
+        Fiche générée par Révision Facile — usage personnel pour préparer le Brevet.
       </footer>
     </article>
   );
