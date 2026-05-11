@@ -139,7 +139,7 @@ export default function PaywallPage() {
             subtitle="Un paiement unique : après validation sur Stripe, ton accès Premium reste actif 3 mois. Tu peux racheter un pass pour prolonger avant la fin."
             priceLabel={PRICE_PERIOD_LABEL}
             strikethroughPriceLabel={OLD_PRICE_LABEL}
-            priceHint="paiement unique — Premium actif 3 mois après le paiement"
+            priceHint="Offre exclusive examen"
             plan="monthly"
             loadingPlan={loadingPlan}
             onCheckout={startCheckout}
