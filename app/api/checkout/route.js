@@ -24,15 +24,8 @@ function parsePositiveEur(raw) {
   return n;
 }
 
-/** Montant en € pour le plan : env serveur, puis NEXT_PUBLIC_*, puis défauts paywall. */
-function resolvePremiumEur(plan) {
-  if (plan === "yearly") {
-    return (
-      parsePositiveEur(process.env.STRIPE_PREMIUM_YEARLY_EUR) ??
-      parsePositiveEur(process.env.NEXT_PUBLIC_PREMIUM_YEARLY_EUR) ??
-      29.99
-    );
-  }
+/** Montant mensuel en € : env serveur, puis NEXT_PUBLIC_*, puis défaut paywall. */
+function resolvePremiumMonthlyEur() {
   return (
     parsePositiveEur(process.env.STRIPE_PREMIUM_MONTHLY_EUR) ??
     parsePositiveEur(process.env.NEXT_PUBLIC_PREMIUM_MONTHLY_EUR) ??
@@ -43,27 +36,23 @@ function resolvePremiumEur(plan) {
 /**
  * Ligne d’abonnement Checkout : Price Stripe si ID renseigné, sinon `price_data` (sans créer de Price à l’avance).
  */
-function buildSubscriptionLineItem(plan, priceIdMonthly, priceIdYearly) {
-  const priceId = plan === "yearly" ? priceIdYearly : priceIdMonthly;
-  if (priceId) {
-    return { price: priceId, quantity: 1 };
+function buildMonthlySubscriptionLineItem(priceIdMonthly) {
+  if (priceIdMonthly) {
+    return { price: priceIdMonthly, quantity: 1 };
   }
 
-  const eur = resolvePremiumEur(plan);
+  const eur = resolvePremiumMonthlyEur();
   const unitAmount = eurToUnitAmount(eur);
   if (unitAmount < 50) {
     return null;
   }
 
-  const interval = plan === "yearly" ? "year" : "month";
-  const name = plan === "yearly" ? "Premium — Annuel" : "Premium — Mensuel";
-
   return {
     price_data: {
       currency: "eur",
       unit_amount: unitAmount,
-      recurring: { interval },
-      product_data: { name },
+      recurring: { interval: "month" },
+      product_data: { name: "Premium — Mensuel" },
     },
     quantity: 1,
   };
@@ -83,8 +72,8 @@ function resolveAppOrigin(request) {
 }
 
 /**
- * Checkout Premium : abonnement mensuel ou annuel.
- * POST body: { "plan": "monthly" | "yearly" }
+ * Checkout Premium : abonnement mensuel uniquement (9,99 €/mois par défaut).
+ * Le corps de la requête est ignoré pour le choix de plan : toujours mensuel.
  */
 export async function POST(request) {
   const supabase = await createSupabaseServerClient();
@@ -96,27 +85,22 @@ export async function POST(request) {
     return NextResponse.json({ error: "Connexion requise." }, { status: 401 });
   }
 
-  let body = {};
   try {
-    body = await request.json();
+    await request.json();
   } catch {
-    body = {};
+    /* corps optionnel, ignoré */
   }
-  const plan = body.plan === "yearly" ? "yearly" : "monthly";
 
   const priceIdMonthly =
     process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID?.trim() ||
     process.env.STRIPE_PREMIUM_PRICE_ID?.trim();
-  const priceIdYearly = process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID?.trim();
 
-  const lineItem = buildSubscriptionLineItem(plan, priceIdMonthly, priceIdYearly);
+  const lineItem = buildMonthlySubscriptionLineItem(priceIdMonthly);
   if (!lineItem) {
     return NextResponse.json(
       {
         error:
-          plan === "yearly"
-            ? "Configure STRIPE_PREMIUM_YEARLY_PRICE_ID ou un montant annuel valide (STRIPE_PREMIUM_YEARLY_EUR / NEXT_PUBLIC_PREMIUM_YEARLY_EUR)."
-            : "Configure STRIPE_PREMIUM_MONTHLY_PRICE_ID ou un montant mensuel valide (STRIPE_PREMIUM_MONTHLY_EUR / NEXT_PUBLIC_PREMIUM_MONTHLY_EUR).",
+          "Configure STRIPE_PREMIUM_MONTHLY_PRICE_ID ou un montant mensuel valide (STRIPE_PREMIUM_MONTHLY_EUR / NEXT_PUBLIC_PREMIUM_MONTHLY_EUR).",
       },
       { status: 500 },
     );

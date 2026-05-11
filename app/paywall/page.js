@@ -1,26 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
 const PRICE_MONTHLY_LABEL = process.env.NEXT_PUBLIC_PREMIUM_PRICE_LABEL?.trim() || "9,99 €";
-const PRICE_YEARLY_LABEL = process.env.NEXT_PUBLIC_PREMIUM_YEARLY_PRICE_LABEL?.trim() || "29,99 €";
-
-/** Montants numériques pour calculer l’économie annuelle vs 12 × mensuel (optionnel, défauts 9,99 / 29,99). */
-const MONTHLY_EUR = Number(process.env.NEXT_PUBLIC_PREMIUM_MONTHLY_EUR ?? 9.99);
-const YEARLY_EUR = Number(process.env.NEXT_PUBLIC_PREMIUM_YEARLY_EUR ?? 29.99);
-
-function yearlySavingsVsMonthlyPercent() {
-  const month12 = MONTHLY_EUR * 12;
-  if (!Number.isFinite(MONTHLY_EUR) || !Number.isFinite(YEARLY_EUR) || month12 <= 0 || YEARLY_EUR <= 0) {
-    return null;
-  }
-  const raw = 1 - YEARLY_EUR / month12;
-  if (raw <= 0) {
-    return null;
-  }
-  return Math.min(95, Math.max(5, Math.round(raw * 100)));
-}
 
 function CheckIcon({ className }) {
   return (
@@ -79,7 +62,7 @@ function PremiumOfferCard({
 
         <div className="mt-auto rounded-xl border border-slate-100 bg-slate-50/90 px-3 py-3 text-center">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
-            {plan === "monthly" ? "Par mois" : "Par an"}
+            Abonnement mensuel
           </p>
           <p className="mt-1 font-[family-name:var(--font-geist-sans)] text-3xl font-bold tabular-nums tracking-tight text-slate-900">
             {priceLabel}
@@ -91,11 +74,7 @@ function PremiumOfferCard({
             disabled={busy}
             className="mt-2.5 flex w-full min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-600/25 transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-65"
           >
-            {thisBusy
-              ? "Redirection…"
-              : plan === "monthly"
-                ? `S’abonner — ${priceLabel} / mois`
-                : `S’abonner — ${priceLabel} / an`}
+            {thisBusy ? "Redirection…" : `S’abonner — ${priceLabel} / mois`}
           </button>
         </div>
       </div>
@@ -106,8 +85,6 @@ function PremiumOfferCard({
 export default function PaywallPage() {
   const [loadingPlan, setLoadingPlan] = useState(null);
   const [error, setError] = useState(null);
-
-  const savingsPct = useMemo(() => yearlySavingsVsMonthlyPercent(), []);
 
   const startCheckout = useCallback(async (plan) => {
     setError(null);
@@ -133,11 +110,6 @@ export default function PaywallPage() {
     }
   }, []);
 
-  const yearlyThirdChecklistLine =
-    savingsPct != null
-      ? `Économise environ ${savingsPct} % par rapport à 12 mois au tarif mensuel.`
-      : "Économise environ 75 % par rapport à 12 mois au tarif mensuel.";
-
   return (
     <div className="relative min-h-dvh bg-gradient-to-b from-indigo-50/80 via-slate-50 to-slate-50">
       <Link
@@ -147,42 +119,22 @@ export default function PaywallPage() {
         ← Retour
       </Link>
 
-      <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col justify-center px-4 pb-10 pt-16 sm:max-w-4xl sm:px-6">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 sm:items-stretch">
+      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-4 pb-10 pt-16 sm:max-w-lg sm:px-6">
+        <div className="grid grid-cols-1 gap-4 sm:gap-5 sm:items-stretch">
           <PremiumOfferCard
-            subtitle="Accès Premium facturé chaque mois, résiliable depuis Stripe."
+            subtitle="Un seul tarif : accès Premium facturé chaque mois, résiliable quand tu veux depuis Stripe."
             priceLabel={PRICE_MONTHLY_LABEL}
             priceHint="/ mois — renouvellement automatique"
             plan="monthly"
             loadingPlan={loadingPlan}
             onCheckout={startCheckout}
-            thirdChecklistLine="Idéal pour essayer : tout Premium, engagement au mois, tu arrêtes quand tu veux."
-          />
-          <PremiumOfferCard
-            subtitle="Une facture par an, même avantages — économique si tu révises souvent."
-            priceLabel={PRICE_YEARLY_LABEL}
-            priceHint="/ an — facturé une fois par an"
-            plan="yearly"
-            loadingPlan={loadingPlan}
-            onCheckout={startCheckout}
-            thirdChecklistLine={yearlyThirdChecklistLine}
+            thirdChecklistLine="Paiement sécurisé par Stripe, sans engagement de durée."
           />
         </div>
 
         <p className="mt-3 text-center text-[11px] text-slate-500">
           En cliquant sur « S’abonner », tu es envoyé sur la page de paiement Stripe pour régler l’abonnement.
         </p>
-
-        {savingsPct != null ? (
-          <p className="mt-3 text-center text-[11px] text-slate-600">
-            L’annuel revient à environ{" "}
-            <span className="font-semibold text-slate-800">
-              {(YEARLY_EUR / 12).toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 2 })}
-            </span>{" "}
-            / mois (vs {MONTHLY_EUR.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 2 })} en
-            mensuel).
-          </p>
-        ) : null}
 
         {error ? (
           <p
