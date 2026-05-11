@@ -70,14 +70,18 @@ function PremiumOfferCard({
           </p>
           {strikethroughPriceLabel ? (
             <p
-              className="mt-1 font-[family-name:var(--font-geist-sans)] text-lg font-semibold tabular-nums tracking-tight text-slate-400 line-through decoration-slate-400 decoration-2"
+              className="mt-1 font-[family-name:var(--font-geist-sans)] text-4xl font-bold tabular-nums tracking-tight text-black line-through decoration-2 decoration-black/80 sm:text-5xl"
               aria-label={`Ancien tarif : ${strikethroughPriceLabel} pour 3 mois`}
             >
               {strikethroughPriceLabel}
             </p>
           ) : null}
           <p
-            className={`font-[family-name:var(--font-geist-sans)] text-3xl font-bold tabular-nums tracking-tight text-slate-900 ${strikethroughPriceLabel ? "mt-0.5" : "mt-1"}`}
+            className={
+              strikethroughPriceLabel
+                ? "mt-1 font-[family-name:var(--font-geist-sans)] text-xl font-bold tabular-nums tracking-tight text-emerald-600 sm:text-2xl"
+                : "mt-1 font-[family-name:var(--font-geist-sans)] text-3xl font-bold tabular-nums tracking-tight text-slate-900"
+            }
           >
             {priceLabel}
           </p>
