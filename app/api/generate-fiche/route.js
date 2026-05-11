@@ -8,6 +8,7 @@ import {
   getPracticeQuizFragmentSystemPrompt,
   getRevisionFacileSystemPrompt,
 } from "../../../lib/revisionFacilePrompt";
+import { profileHasActivePremium } from "../../../lib/profilePremium";
 import { extractPracticeQuizFence } from "../../../lib/parseFlashrevisQuiz";
 import {
   countValidPracticeQuizQuestions,
@@ -68,11 +69,11 @@ export async function POST(request) {
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("is_premium")
+    .select("is_premium, premium_until")
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profileError || !profile?.is_premium) {
+  if (profileError || !profileHasActivePremium(profile)) {
     return Response.json(
       { error: "Offre Premium requise pour générer une fiche." },
       { status: 403 },

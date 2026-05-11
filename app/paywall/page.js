@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { useCallback, useState } from "react";
 
-const PRICE_MONTHLY_LABEL = process.env.NEXT_PUBLIC_PREMIUM_PRICE_LABEL?.trim() || "9,99 €";
+/** Tarif affiché : paiement unique pour 3 mois d’accès. */
+const PRICE_PERIOD_LABEL = process.env.NEXT_PUBLIC_PREMIUM_PRICE_LABEL?.trim() || "9,99 €";
+/** Ancien tarif (référence 3 mois), affiché barré. */
+const OLD_PRICE_LABEL = process.env.NEXT_PUBLIC_PREMIUM_OLD_PRICE_LABEL?.trim() || "29,99 €";
 
 function CheckIcon({ className }) {
   return (
@@ -20,6 +23,7 @@ function CheckIcon({ className }) {
 function PremiumOfferCard({
   subtitle,
   priceLabel,
+  strikethroughPriceLabel,
   priceHint,
   plan,
   loadingPlan,
@@ -62,9 +66,19 @@ function PremiumOfferCard({
 
         <div className="mt-auto rounded-xl border border-slate-100 bg-slate-50/90 px-3 py-3 text-center">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
-            Abonnement mensuel
+            Pour 3 mois
           </p>
-          <p className="mt-1 font-[family-name:var(--font-geist-sans)] text-3xl font-bold tabular-nums tracking-tight text-slate-900">
+          {strikethroughPriceLabel ? (
+            <p
+              className="mt-1 font-[family-name:var(--font-geist-sans)] text-lg font-semibold tabular-nums tracking-tight text-slate-400 line-through decoration-slate-400 decoration-2"
+              aria-label={`Ancien tarif : ${strikethroughPriceLabel} pour 3 mois`}
+            >
+              {strikethroughPriceLabel}
+            </p>
+          ) : null}
+          <p
+            className={`font-[family-name:var(--font-geist-sans)] text-3xl font-bold tabular-nums tracking-tight text-slate-900 ${strikethroughPriceLabel ? "mt-0.5" : "mt-1"}`}
+          >
             {priceLabel}
           </p>
           <p className="mt-0.5 text-[11px] text-slate-500">{priceHint}</p>
@@ -74,7 +88,7 @@ function PremiumOfferCard({
             disabled={busy}
             className="mt-2.5 flex w-full min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-600/25 transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-65"
           >
-            {thisBusy ? "Redirection…" : `S’abonner — ${priceLabel} / mois`}
+            {thisBusy ? "Redirection…" : `Payer ${priceLabel} — 3 mois d’accès`}
           </button>
         </div>
       </div>
@@ -122,18 +136,19 @@ export default function PaywallPage() {
       <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-4 pb-10 pt-16 sm:max-w-lg sm:px-6">
         <div className="grid grid-cols-1 gap-4 sm:gap-5 sm:items-stretch">
           <PremiumOfferCard
-            subtitle="Un seul tarif : accès Premium facturé chaque mois, résiliable quand tu veux depuis Stripe."
-            priceLabel={PRICE_MONTHLY_LABEL}
-            priceHint="/ mois — renouvellement automatique"
+            subtitle="Un paiement unique : après validation sur Stripe, ton accès Premium reste actif 3 mois. Tu peux racheter un pass pour prolonger avant la fin."
+            priceLabel={PRICE_PERIOD_LABEL}
+            strikethroughPriceLabel={OLD_PRICE_LABEL}
+            priceHint="paiement unique — Premium actif 3 mois après le paiement"
             plan="monthly"
             loadingPlan={loadingPlan}
             onCheckout={startCheckout}
-            thirdChecklistLine="Paiement sécurisé par Stripe, sans engagement de durée."
+            thirdChecklistLine="Chaque achat ajoute 3 mois (cumul si tu prolonges avant expiration)."
           />
         </div>
 
         <p className="mt-3 text-center text-[11px] text-slate-500">
-          En cliquant sur « S’abonner », tu es envoyé sur la page de paiement Stripe pour régler l’abonnement.
+          En cliquant sur « Payer », tu es redirigé vers Stripe pour régler le pass 3 mois (pas de prélèvement récurrent automatique).
         </p>
 
         {error ? (

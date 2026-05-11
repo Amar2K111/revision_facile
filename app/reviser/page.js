@@ -9,6 +9,7 @@ import {
   getSubjectsForClass,
   TERMINALE_SPECIALIZATION_GROUPS,
 } from "../../data/curriculum";
+import { profileHasActivePremium } from "../../lib/profilePremium";
 import {
   SHEET_MARKDOWN_VERSION,
   SHEET_STORAGE_KEY,
@@ -60,8 +61,8 @@ export default function ReviserPage() {
       return;
     }
     setLoggedIn(true);
-    const { data } = await supabase.from("profiles").select("is_premium").eq("id", user.id).maybeSingle();
-    setIsPremium(!!data?.is_premium);
+    const { data } = await supabase.from("profiles").select("is_premium, premium_until").eq("id", user.id).maybeSingle();
+    setIsPremium(profileHasActivePremium(data));
   }, []);
 
   useEffect(() => {

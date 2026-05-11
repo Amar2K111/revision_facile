@@ -65,6 +65,22 @@ Deno.serve(async (req) => {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
+  const computePremiumUntilAfterPassPurchase = (
+    existingPremiumUntilIso: string | null | undefined,
+    now = new Date(),
+  ): string => {
+    let base = now;
+    if (existingPremiumUntilIso != null && String(existingPremiumUntilIso).trim() !== "") {
+      const ex = new Date(String(existingPremiumUntilIso));
+      if (!Number.isNaN(ex.getTime()) && ex > now) {
+        base = ex;
+      }
+    }
+    const d = new Date(base.getTime());
+    d.setMonth(d.getMonth() + 3);
+    return d.toISOString();
+  };
+
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
@@ -79,13 +95,29 @@ Deno.serve(async (req) => {
             : null;
 
       if (userId && typeof userId === "string") {
-        const patch: { is_premium: boolean; stripe_customer_id?: string } = { is_premium: true };
-        if (customerId) {
-          patch.stripe_customer_id = customerId;
-        }
-        const { error } = await admin.from("profiles").update(patch).eq("id", userId);
-        if (error) {
-          console.error("[stripe-webhook] Erreur mise à jour profil:", error.message);
+        if (session.mode === "payment") {
+          const { data: row } = await admin.from("profiles").select("premium_until").eq("id", userId).maybeSingle();
+          const premiumUntil = computePremiumUntilAfterPassPurchase(row?.premium_until ?? null);
+          const patch: { is_premium: boolean; premium_until: string; stripe_customer_id?: string } = {
+            is_premium: true,
+            premium_until: premiumUntil,
+          };
+          if (customerId) {
+            patch.stripe_customer_id = customerId;
+          }
+          const { error } = await admin.from("profiles").update(patch).eq("id", userId);
+          if (error) {
+            console.error("[stripe-webhook] Erreur mise à jour profil (pass):", error.message);
+          }
+        } else if (session.mode === "subscription") {
+          const patch: { is_premium: boolean; stripe_customer_id?: string } = { is_premium: true };
+          if (customerId) {
+            patch.stripe_customer_id = customerId;
+          }
+          const { error } = await admin.from("profiles").update(patch).eq("id", userId);
+          if (error) {
+            console.error("[stripe-webhook] Erreur mise à jour profil (abo):", error.message);
+          }
         }
       }
       break;
@@ -94,6 +126,14 @@ Deno.serve(async (req) => {
       const subscription = event.data.object as Stripe.Subscription;
       const userId = subscription.metadata?.supabase_user_id;
       if (userId && typeof userId === "string") {
+        const { data: row } = await admin.from("profiles").select("premium_until").eq("id", userId).maybeSingle();
+        const untilRaw = row?.premium_until;
+        if (untilRaw != null && String(untilRaw).trim() !== "") {
+          const t = new Date(String(untilRaw)).getTime();
+          if (Number.isFinite(t) && t > Date.now()) {
+            break;
+          }
+        }
         const { error } = await admin.from("profiles").update({ is_premium: false }).eq("id", userId);
         if (error) {
           console.error("[stripe-webhook] Révocation premium:", error.message);

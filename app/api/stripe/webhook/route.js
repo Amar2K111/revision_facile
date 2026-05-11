@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { computePremiumUntilAfterPassPurchase } from "../../../../lib/stripePremiumPass";
 import { createSupabaseAdminClient } from "../../../../lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -53,14 +54,25 @@ export async function POST(request) {
         const admin = createSupabaseAdminClient();
         if (!admin) {
           console.error("[stripe webhook] SUPABASE_SERVICE_ROLE_KEY manquante — is_premium non mis à jour.");
-        } else {
+        } else if (session.mode === "payment") {
+          const { data: row } = await admin.from("profiles").select("premium_until").eq("id", userId).maybeSingle();
+          const premiumUntil = computePremiumUntilAfterPassPurchase(row?.premium_until ?? null);
+          const patch = { is_premium: true, premium_until: premiumUntil };
+          if (customerId) {
+            patch.stripe_customer_id = customerId;
+          }
+          const { error } = await admin.from("profiles").update(patch).eq("id", userId);
+          if (error) {
+            console.error("[stripe webhook] Erreur mise à jour profil (pass):", error.message);
+          }
+        } else if (session.mode === "subscription") {
           const patch = { is_premium: true };
           if (customerId) {
             patch.stripe_customer_id = customerId;
           }
           const { error } = await admin.from("profiles").update(patch).eq("id", userId);
           if (error) {
-            console.error("[stripe webhook] Erreur mise à jour profil:", error.message);
+            console.error("[stripe webhook] Erreur mise à jour profil (abo):", error.message);
           }
         }
       }
@@ -72,6 +84,14 @@ export async function POST(request) {
       if (userId && typeof userId === "string") {
         const admin = createSupabaseAdminClient();
         if (admin) {
+          const { data: row } = await admin.from("profiles").select("premium_until").eq("id", userId).maybeSingle();
+          const untilRaw = row?.premium_until;
+          if (untilRaw != null && String(untilRaw).trim() !== "") {
+            const t = new Date(String(untilRaw)).getTime();
+            if (Number.isFinite(t) && t > Date.now()) {
+              break;
+            }
+          }
           const { error } = await admin.from("profiles").update({ is_premium: false }).eq("id", userId);
           if (error) {
             console.error("[stripe webhook] Révocation premium:", error.message);
