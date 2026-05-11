@@ -70,7 +70,7 @@ function PremiumOfferCard({
           </p>
           {strikethroughPriceLabel ? (
             <p
-              className="mt-1 font-[family-name:var(--font-geist-sans)] text-4xl font-bold tabular-nums tracking-tight text-black line-through decoration-2 decoration-black/80 sm:text-5xl"
+              className="mt-1 font-[family-name:var(--font-geist-sans)] text-2xl font-bold tabular-nums tracking-tight text-black line-through decoration-2 decoration-black/80 sm:text-3xl"
               aria-label={`Ancien tarif : ${strikethroughPriceLabel} pour 3 mois`}
             >
               {strikethroughPriceLabel}
@@ -79,7 +79,7 @@ function PremiumOfferCard({
           <p
             className={
               strikethroughPriceLabel
-                ? "mt-1 font-[family-name:var(--font-geist-sans)] text-xl font-bold tabular-nums tracking-tight text-emerald-600 sm:text-2xl"
+                ? "mt-1 font-[family-name:var(--font-geist-sans)] text-2xl font-bold tabular-nums tracking-tight text-emerald-600 sm:text-3xl"
                 : "mt-1 font-[family-name:var(--font-geist-sans)] text-3xl font-bold tabular-nums tracking-tight text-slate-900"
             }
           >
