@@ -403,20 +403,6 @@ export const SUBJECTS_BY_TERM_TECH = {
       ],
     },
   ],
-  "tech-std2a": [
-    {
-      id: "tech-std2a-design",
-      name: "Analyse et méthodes en design",
-      color: "arts",
-      topics: [
-        "Design graphique et numérique",
-        "Design d'objet",
-        "Design d'espace (architecture)",
-        "Design de mode et textile",
-        "Culture design",
-      ],
-    },
-  ],
   "tech-sthr": [
     {
       id: "tech-sthr-sts",
@@ -695,7 +681,6 @@ export const TERMINALE_SPECIALIZATION_GROUPS = [
       { id: "tech-sti2d", label: "STI2D (Industrie et Développement Durable)" },
       { id: "tech-st2s", label: "ST2S (Santé et Social)" },
       { id: "tech-stl", label: "STL (Laboratoire)" },
-      { id: "tech-std2a", label: "STD2A (Design et Arts Appliqués)" },
       { id: "tech-sthr", label: "STHR (Hôtellerie et Restauration)" },
       { id: "tech-stav", label: "STAV (Agronomie et Vivant)" },
     ],
