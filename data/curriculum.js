@@ -287,18 +287,6 @@ export const SUBJECTS_BY_TERM_SPEC = {
       ],
     },
   ],
-  "gen-arts": [
-    {
-      id: "term-arts",
-      name: "Arts",
-      color: "arts",
-      topics: [
-        "Analyse d'œuvre et processus de création",
-        "Relation de l'œuvre à l'espace / au public",
-        "Enjeux historiques et esthétiques",
-      ],
-    },
-  ],
   "gen-bio-eco": [
     {
       id: "term-bio-eco",
@@ -452,19 +440,6 @@ export const SUBJECTS_BY_TERM_TECH = {
         "Production agricole",
         "Enjeux de l'alimentation mondiale",
         "Énergies et environnement",
-      ],
-    },
-  ],
-  "tech-s2tmd": [
-    {
-      id: "tech-s2tmd-scene",
-      name: "Culture et pratique de la danse, musique ou théâtre",
-      color: "arts",
-      topics: [
-        "Histoire des arts de la scène",
-        "Analyse d'œuvres",
-        "Techniques d'interprétation",
-        "Analyse du spectacle vivant",
       ],
     },
   ],
@@ -708,10 +683,6 @@ export const TERMINALE_SPECIALIZATION_GROUPS = [
       },
       { id: "gen-si", label: "SI (Sciences de l'Ingénieur)" },
       {
-        id: "gen-arts",
-        label: "Arts (Plastiques, Musique, Théâtre, Cinéma ou Danse)",
-      },
-      {
         id: "gen-bio-eco",
         label: "Biologie-Écologie (lycées agricoles uniquement)",
       },
@@ -727,7 +698,6 @@ export const TERMINALE_SPECIALIZATION_GROUPS = [
       { id: "tech-std2a", label: "STD2A (Design et Arts Appliqués)" },
       { id: "tech-sthr", label: "STHR (Hôtellerie et Restauration)" },
       { id: "tech-stav", label: "STAV (Agronomie et Vivant)" },
-      { id: "tech-s2tmd", label: "S2TMD (Théâtre, Musique et Danse)" },
     ],
   },
 ];
