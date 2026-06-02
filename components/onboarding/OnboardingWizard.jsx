@@ -6,21 +6,71 @@ import { sanitizeNextPath } from "../../lib/authRedirects";
 import {
   daysUntilExam,
   examLabelFromClassId,
-  getSpecializationOptions,
+  getSpecializationGroups,
   getVisibleOnboardingSteps,
   getWeakSubjectOptions,
+  isSpecializationStepComplete,
+  isWeakSubjectsStepComplete,
   labelForAnswer,
   ONBOARDING_DRAFT_STORAGE_KEY,
 } from "../../data/onboardingQuestions";
+import {
+  OnboardingChoiceButtons,
+  OnboardingGroupedChoiceButtons,
+  OnboardingMultiChoiceButtons,
+} from "./OnboardingChoiceButtons";
 
 const inputClass =
   "w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-base text-neutral-950 placeholder:text-slate-400 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600 min-h-[44px]";
 
-const choiceClass =
-  "w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-left text-sm font-medium text-slate-800 transition hover:border-indigo-300 hover:bg-indigo-50/50 focus:outline-none focus:ring-2 focus:ring-indigo-500";
+/**
+ * @param {import("../../data/onboardingQuestions").OnboardingStep | undefined} step
+ * @param {Record<string, unknown>} answers
+ */
+function isStepComplete(step, answers) {
+  if (!step) return false;
+  if (step.type === "recap") return true;
+  if (step.optional) return true;
 
-const choiceSelectedClass =
-  "border-indigo-600 bg-indigo-50 ring-2 ring-indigo-500/30";
+  const v = answers[step.id];
+
+  if (step.id === "specializationId") {
+    return isSpecializationStepComplete(answers);
+  }
+  if (step.id === "weakSubjects") {
+    return isWeakSubjectsStepComplete(answers);
+  }
+  if (step.type === "text") {
+    if (step.id === "successMeaning") {
+      return typeof v === "string" && v.trim().length >= 3;
+    }
+    return true;
+  }
+  if (step.type === "date") {
+    return typeof v === "string" && v.length > 0;
+  }
+  if (step.type === "multi") {
+    return Array.isArray(v) && v.length > 0;
+  }
+  if (step.type === "single") {
+    return typeof v === "string" && v.length > 0;
+  }
+  return false;
+}
+
+/**
+ * @param {import("../../data/onboardingQuestions").OnboardingStep | undefined} step
+ */
+function stepValidationMessage(step) {
+  if (!step) return "Réponds à la question pour continuer.";
+  if (step.id === "specializationId") {
+    return "Sélectionne ta filière ou ta spécialité pour continuer.";
+  }
+  if (step.id === "weakSubjects") {
+    return "Choisis au moins une matière.";
+  }
+  return "Réponds à la question pour continuer.";
+}
 
 /**
  * @param {Record<string, unknown>} initial
@@ -84,32 +134,11 @@ export default function OnboardingWizard() {
     setError(null);
   }, []);
 
-  const canContinue = useMemo(() => {
-    if (!step) return false;
-    if (step.type === "recap") return true;
-    if (step.optional) return true;
-    const v = answers[step.id];
-    if (step.type === "text") {
-      if (step.id === "successMeaning") {
-        return typeof v === "string" && v.trim().length >= 3;
-      }
-      return true;
-    }
-    if (step.type === "date") {
-      return typeof v === "string" && v.length > 0;
-    }
-    if (step.type === "multi") {
-      return Array.isArray(v) && v.length > 0;
-    }
-    if (step.type === "single") {
-      return typeof v === "string" && v.length > 0;
-    }
-    return false;
-  }, [step, answers]);
+  const canContinue = useMemo(() => isStepComplete(step, answers), [step, answers]);
 
   const goNext = useCallback(() => {
     if (!canContinue) {
-      setError("Réponds à la question pour continuer.");
+      setError(stepValidationMessage(step));
       return;
     }
     if (step?.type === "recap") {
@@ -154,18 +183,21 @@ export default function OnboardingWizard() {
     return null;
   }
 
-  const specOptions = getSpecializationOptions(answers);
+  const specGroups = getSpecializationGroups(answers);
   const weakOptions = getWeakSubjectOptions(answers);
   const classId = typeof answers.classId === "string" ? answers.classId : "";
+  const specializationId =
+    typeof answers.specializationId === "string" ? answers.specializationId : "";
+  const weakSubjectsSelected = Array.isArray(answers.weakSubjects) ? answers.weakSubjects : [];
   const examName = examLabelFromClassId(classId);
   const days = daysUntilExam(answers);
   const firstName =
     typeof answers.firstName === "string" && answers.firstName.trim()
       ? answers.firstName.trim()
       : null;
-  const weakLabels = Array.isArray(answers.weakSubjects)
-    ? answers.weakSubjects.map((id) => labelForAnswer(answers, "weakSubjects", String(id)))
-    : [];
+  const weakLabels = weakSubjectsSelected.map((id) =>
+    labelForAnswer(answers, "weakSubjects", String(id)),
+  );
 
   return (
     <div className="w-full max-w-lg">
@@ -218,95 +250,43 @@ export default function OnboardingWizard() {
           )}
 
           {step.type === "single" && step.id === "specializationId" && (
-            <div className="max-h-[min(50vh,320px)] space-y-2 overflow-y-auto pr-1">
-              {specOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  className={`${choiceClass} ${
-                    answers.specializationId === opt.value ? choiceSelectedClass : ""
-                  }`}
-                  onClick={() => setAnswer("specializationId", opt.value)}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
+            <OnboardingGroupedChoiceButtons
+              groups={specGroups}
+              selected={specializationId}
+              onSelect={(value) => setAnswer("specializationId", value)}
+            />
           )}
 
           {step.type === "single" && step.id !== "specializationId" && step.options && (
-            <div className="space-y-2">
-              {step.options.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  className={`${choiceClass} ${
-                    answers[step.id] === opt.value ? choiceSelectedClass : ""
-                  }`}
-                  onClick={() => setAnswer(step.id, opt.value)}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
+            <OnboardingChoiceButtons
+              options={step.options}
+              selected={typeof answers[step.id] === "string" ? answers[step.id] : ""}
+              onSelect={(value) => setAnswer(step.id, value)}
+            />
           )}
 
           {step.type === "multi" && step.id === "weakSubjects" && (
-            <div className="space-y-2">
+            <>
               {weakOptions.length === 0 ? (
                 <p className="text-sm text-slate-500">
                   Choisis d’abord ton niveau et ta filière aux étapes précédentes.
                 </p>
               ) : (
-                weakOptions.map((opt) => {
-                  const selected = Array.isArray(answers.weakSubjects)
-                    ? answers.weakSubjects.includes(opt.value)
-                    : false;
-                  return (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      className={`${choiceClass} ${selected ? choiceSelectedClass : ""}`}
-                      onClick={() => {
-                        const prev = Array.isArray(answers.weakSubjects) ? [...answers.weakSubjects] : [];
-                        const next = selected
-                          ? prev.filter((x) => x !== opt.value)
-                          : [...prev, opt.value];
-                        setAnswer("weakSubjects", next);
-                      }}
-                    >
-                      {opt.label}
-                    </button>
-                  );
-                })
+                <OnboardingMultiChoiceButtons
+                  options={weakOptions}
+                  selected={weakSubjectsSelected}
+                  onChange={(values) => setAnswer("weakSubjects", values)}
+                />
               )}
-            </div>
+            </>
           )}
 
           {step.type === "multi" && step.id !== "weakSubjects" && step.options && (
-            <div className="space-y-2">
-              {step.options.map((opt) => {
-                const selected = Array.isArray(answers[step.id])
-                  ? answers[step.id].includes(opt.value)
-                  : false;
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    className={`${choiceClass} ${selected ? choiceSelectedClass : ""}`}
-                    onClick={() => {
-                      const prev = Array.isArray(answers[step.id]) ? [...answers[step.id]] : [];
-                      const next = selected
-                        ? prev.filter((x) => x !== opt.value)
-                        : [...prev, opt.value];
-                      setAnswer(step.id, next);
-                    }}
-                  >
-                    {opt.label}
-                  </button>
-                );
-              })}
-            </div>
+            <OnboardingMultiChoiceButtons
+              options={step.options}
+              selected={Array.isArray(answers[step.id]) ? answers[step.id] : []}
+              onChange={(values) => setAnswer(step.id, values)}
+            />
           )}
 
           {step.type === "recap" && (
@@ -323,6 +303,12 @@ export default function OnboardingWizard() {
                   <span className="font-medium">Examen :</span>{" "}
                   {labelForAnswer(answers, "classId", classId) || "—"}
                 </li>
+                {specializationId ? (
+                  <li>
+                    <span className="font-medium">Filière :</span>{" "}
+                    {labelForAnswer(answers, "specializationId", specializationId)}
+                  </li>
+                ) : null}
                 {days != null && days >= 0 ? (
                   <li>
                     <span className="font-medium">Jours restants :</span>{" "}

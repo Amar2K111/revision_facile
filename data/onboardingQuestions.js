@@ -100,8 +100,8 @@ export const ONBOARDING_STEPS = [
   {
     id: "specializationId",
     type: "single",
-    title: "Ta filière ou tes spécialités",
-    subtitle: "Pour te proposer les bonnes matières.",
+    title: "Ta filière ?",
+    subtitle: "Choisis une option.",
     showIf: (a) => a.classId === "term" || a.classId === "bts2",
     options: [],
   },
@@ -190,17 +190,64 @@ export function getVisibleOnboardingSteps(answers) {
 }
 
 /**
+ * @param {{ options: { id: string, label: string }[] }} group
+ * @returns {{ value: string, label: string }[]}
+ */
+function mapGroupOptions(group) {
+  return group.options.map((o) => ({ value: o.id, label: o.label }));
+}
+
+/**
+ * @param {Record<string, unknown>} answers
+ * @returns {{ groupLabel: string, options: { value: string, label: string }[] }[]}
+ */
+export function getSpecializationGroups(answers) {
+  if (answers.classId === "term") {
+    return TERMINALE_SPECIALIZATION_GROUPS.map((g) => ({
+      groupLabel: g.groupLabel,
+      options: mapGroupOptions(g),
+    }));
+  }
+  if (answers.classId === "bts2") {
+    return BTS_SPECIALIZATION_GROUPS.map((g) => ({
+      groupLabel: g.groupLabel,
+      options: mapGroupOptions(g),
+    }));
+  }
+  return [];
+}
+
+/**
  * @param {Record<string, unknown>} answers
  * @returns {{ value: string, label: string }[]}
  */
 export function getSpecializationOptions(answers) {
-  if (answers.classId === "term") {
-    return TERMINALE_SPECIALIZATION_GROUPS.flatMap((g) => g.options);
+  return getSpecializationGroups(answers).flatMap((g) => g.options);
+}
+
+/**
+ * @param {Record<string, unknown>} answers
+ * @returns {boolean}
+ */
+export function isSpecializationStepComplete(answers) {
+  const id = answers.specializationId;
+  if (typeof id !== "string" || id.length === 0) {
+    return false;
   }
-  if (answers.classId === "bts2") {
-    return BTS_SPECIALIZATION_GROUPS.flatMap((g) => g.options);
+  return getSpecializationOptions(answers).some((o) => o.value === id);
+}
+
+/**
+ * @param {Record<string, unknown>} answers
+ * @returns {boolean}
+ */
+export function isWeakSubjectsStepComplete(answers) {
+  const weak = answers.weakSubjects;
+  const options = getWeakSubjectOptions(answers);
+  if (options.length === 0) {
+    return false;
   }
-  return [];
+  return Array.isArray(weak) && weak.length > 0;
 }
 
 /**
