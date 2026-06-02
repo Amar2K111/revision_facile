@@ -8,6 +8,37 @@ const PRICE_PERIOD_LABEL = process.env.NEXT_PUBLIC_PREMIUM_PRICE_LABEL?.trim() |
 /** Ancien tarif (référence 12 mois), affiché barré. */
 const OLD_PRICE_LABEL = process.env.NEXT_PUBLIC_PREMIUM_OLD_PRICE_LABEL?.trim() || "29,99 €";
 
+const PAYWALL_CHECKLIST = [
+  {
+    title: "Fiches de révision illimitées",
+    detail: "génère autant que tu veux, pour ton programme",
+  },
+  {
+    title: "Fiches complètes et structurées",
+    detail: "essentiel du cours, programme dense et points clés",
+  },
+  {
+    title: "Quiz interactifs",
+    detail: "entraîne-toi et vérifie tes acquis sur chaque notion",
+  },
+  {
+    title: "Adapté à toi",
+    detail: "ta classe, ta matière et la notion que tu choisis",
+  },
+  {
+    title: "Brevet, Bac et BTS",
+    detail: "contenu calibré sur ton niveau et le programme national",
+  },
+  {
+    title: "Astuces et l’essentiel",
+    detail: "ce qu’il faut retenir sans te noyer",
+  },
+  {
+    title: "Tout pour réussir ton examen",
+    detail: "la révision complète dont tu as besoin jusqu’au jour J",
+  },
+];
+
 function CheckIcon({ className }) {
   return (
     <svg className={className} viewBox="0 0 20 20" fill="currentColor" aria-hidden>
@@ -22,13 +53,13 @@ function CheckIcon({ className }) {
 
 function PremiumOfferCard({
   subtitle,
+  checklistItems,
   priceLabel,
   strikethroughPriceLabel,
   priceHint,
   plan,
   loadingPlan,
   onCheckout,
-  thirdChecklistLine,
 }) {
   const busy = loadingPlan !== null;
   const thisBusy = loadingPlan === plan;
@@ -49,24 +80,22 @@ function PremiumOfferCard({
         </h2>
         <p className="text-center text-xs leading-snug text-slate-600">{subtitle}</p>
 
-        <ul className="space-y-2 text-xs leading-snug text-slate-700">
-          <li className="flex gap-2">
-            <CheckIcon className="mt-px size-4 shrink-0 text-indigo-600" />
-            <span>Fiches : essentiel, programme dense, astuces</span>
-          </li>
-          <li className="flex gap-2">
-            <CheckIcon className="mt-px size-4 shrink-0 text-indigo-600" />
-            <span>Quiz interactif</span>
-          </li>
-          <li className="flex gap-2">
-            <CheckIcon className="mt-px size-4 shrink-0 text-indigo-600" />
-            <span>{thirdChecklistLine}</span>
-          </li>
+        <ul className="space-y-1.5 text-xs leading-snug text-slate-700">
+          {checklistItems.map((item) => (
+            <li key={item.title} className="flex gap-2">
+              <CheckIcon className="mt-px size-4 shrink-0 text-indigo-600" />
+              <span>
+                <strong className="font-semibold text-slate-800">{item.title}</strong>
+                {" — "}
+                {item.detail}
+              </span>
+            </li>
+          ))}
         </ul>
 
         <div className="mt-auto rounded-xl border border-slate-100 bg-slate-50/90 px-3 py-3 text-center">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
-            Pour 12 mois
+            12 mois d’accès
           </p>
           {strikethroughPriceLabel ? (
             <p
@@ -140,20 +169,16 @@ export default function PaywallPage() {
       <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-4 pb-10 pt-16 sm:max-w-lg sm:px-6">
         <div className="grid grid-cols-1 gap-4 sm:gap-5 sm:items-stretch">
           <PremiumOfferCard
-            subtitle="Abonnement annuel : après validation sur Stripe, ton accès Premium reste actif 12 mois, renouvelé automatiquement chaque année. Résiliable à tout moment."
+            subtitle="Génère autant de fiches que tu veux, révise avec des quiz interactifs et débloque tout Premium pour tes examens."
+            checklistItems={PAYWALL_CHECKLIST}
             priceLabel={PRICE_PERIOD_LABEL}
             strikethroughPriceLabel={OLD_PRICE_LABEL}
-            priceHint="Offre exclusive examen · renouvellement annuel"
+            priceHint="Offre exclusive examen · fiches de révision illimitées"
             plan="yearly"
             loadingPlan={loadingPlan}
             onCheckout={startCheckout}
-            thirdChecklistLine="Accès 12 mois, renouvelé chaque année tant que l’abonnement est actif."
           />
         </div>
-
-        <p className="mt-3 text-center text-[11px] text-slate-500">
-          En cliquant sur « Continuer », tu es redirigé vers Stripe pour souscrire l’abonnement annuel (prélèvement récurrent chaque année, résiliable depuis ton espace client Stripe).
-        </p>
 
         {error ? (
           <p
