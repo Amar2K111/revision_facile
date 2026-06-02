@@ -81,13 +81,6 @@ const COMMITMENT_OPTIONS = [
 /** @type {OnboardingStep[]} */
 export const ONBOARDING_STEPS = [
   {
-    id: "firstName",
-    type: "text",
-    title: "Ton prénom ?",
-    subtitle: "On personnalise ton parcours (tu peux passer cette étape).",
-    optional: true,
-  },
-  {
     id: "classId",
     type: "single",
     title: "Tu prépares quel examen ?",
