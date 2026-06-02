@@ -57,6 +57,48 @@ function resolveExpertDeepening(classId, subjectId, topicLabel) {
   return { directive: GENERIC_EXPERT_DIRECTIVE, expertId: null };
 }
 
+function mapProviderError(message) {
+  const normalized = message.toLowerCase();
+  if (
+    normalized.includes("lightning dunning decision is deny") ||
+    normalized.includes("dunning decision is deny")
+  ) {
+    return "Acces Gemini refuse (facturation Google Cloud en echec/suspendue). Verifie Billing sur le projet GCP de la cle API puis regle la facturation.";
+  }
+  if (normalized.includes("permission denied") || normalized.includes("forbidden")) {
+    return "Acces Gemini refuse (403). Verifie que la cle API correspond au bon projet et que Generative Language API est activee.";
+  }
+  return message;
+}
+
+function extractErrorMessage(error) {
+  if (error instanceof Error && error.message?.trim()) {
+    return mapProviderError(error.message.trim());
+  }
+  if (typeof error === "string" && error.trim()) {
+    return mapProviderError(error.trim());
+  }
+  if (error && typeof error === "object") {
+    const maybeMessage = error.message;
+    if (typeof maybeMessage === "string" && maybeMessage.trim()) {
+      return mapProviderError(maybeMessage.trim());
+    }
+    const maybeNestedMessage = error.error?.message;
+    if (typeof maybeNestedMessage === "string" && maybeNestedMessage.trim()) {
+      return mapProviderError(maybeNestedMessage.trim());
+    }
+    try {
+      const serialized = JSON.stringify(error);
+      if (serialized && serialized !== "{}") {
+        return mapProviderError(serialized);
+      }
+    } catch {
+      /* noop */
+    }
+  }
+  return "Erreur lors de la generation.";
+}
+
 export async function POST(request) {
   const supabase = await createSupabaseServerClient();
   const {
@@ -240,8 +282,7 @@ export async function POST(request) {
       },
     });
   } catch (e) {
-    const message =
-      e instanceof Error ? e.message : "Erreur lors de la génération.";
+    const message = extractErrorMessage(e);
     return Response.json({ error: message }, { status: 502 });
   }
 }

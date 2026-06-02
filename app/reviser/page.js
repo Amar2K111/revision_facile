@@ -200,8 +200,10 @@ export default function ReviserPage() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
+        const apiError = typeof data.error === "string" ? data.error.trim() : "";
+        const httpFallback = `Echec de la generation (HTTP ${res.status}).`;
         throw new Error(
-          typeof data.error === "string" ? data.error : "Échec de la génération.",
+          apiError || httpFallback,
         );
       }
       const payload = {
@@ -257,7 +259,7 @@ export default function ReviserPage() {
                   </p>
                 </div>
 
-                <div className="flex justify-end justify-self-end pr-[env(safe-area-inset-right,0px)]">
+                <div className="flex justify-end justify-self-end pr-2 sm:pr-[env(safe-area-inset-right,0px)]">
                   <AuthUserAvatar />
                 </div>
               </div>
