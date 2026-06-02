@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { POST_LOGIN_DEFAULT_PATH, resolvePostAuthPath, sanitizeNextPath } from "../../../lib/authRedirects";
 import { validateOnboardingPayload } from "../../../lib/onboardingValidation";
 import { profileHasActivePremium } from "../../../lib/profilePremium";
+import { createSupabaseAdminClient } from "../../../lib/supabase/admin";
 import { createSupabaseServerClient } from "../../../lib/supabase/server";
 
 export async function POST(request) {
@@ -26,11 +27,21 @@ export async function POST(request) {
     return NextResponse.json({ error: validated.error }, { status: 400 });
   }
 
-  const { data: existing } = await supabase
+  const profileClient = createSupabaseAdminClient() ?? supabase;
+
+  const { data: existing, error: selectError } = await profileClient
     .from("profiles")
     .select("is_premium, premium_until, onboarding_completed_at")
     .eq("id", user.id)
     .maybeSingle();
+
+  if (selectError) {
+    console.error("[onboarding] select failed", selectError.message);
+    return NextResponse.json(
+      { error: "Impossible d’enregistrer ton profil. Réessaie." },
+      { status: 500 },
+    );
+  }
 
   if (profileHasActivePremium(existing)) {
     return NextResponse.json({
@@ -40,7 +51,7 @@ export async function POST(request) {
   }
 
   const now = new Date().toISOString();
-  const { error } = await supabase.from("profiles").upsert(
+  const { error } = await profileClient.from("profiles").upsert(
     {
       id: user.id,
       onboarding_answers: validated.answers,
@@ -50,7 +61,7 @@ export async function POST(request) {
   );
 
   if (error) {
-    console.error("[onboarding] upsert failed", error.message);
+    console.error("[onboarding] upsert failed", error.message, error.code);
     return NextResponse.json(
       { error: "Impossible d’enregistrer ton profil. Réessaie." },
       { status: 500 },
