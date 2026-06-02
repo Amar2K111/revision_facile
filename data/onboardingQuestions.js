@@ -83,7 +83,7 @@ export const ONBOARDING_STEPS = [
   {
     id: "firstName",
     type: "text",
-    title: "Comment on t’appelle ?",
+    title: "Ton prénom ?",
     subtitle: "On personnalise ton parcours (tu peux passer cette étape).",
     optional: true,
   },
