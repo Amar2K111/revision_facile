@@ -259,7 +259,7 @@ export default function ReviserPage() {
                   </p>
                 </div>
 
-                <div className="flex justify-end justify-self-end pr-2 sm:pr-[env(safe-area-inset-right,0px)]">
+                <div className="flex justify-end justify-self-end pr-3 sm:pr-[env(safe-area-inset-right,0px)]">
                   <AuthUserAvatar />
                 </div>
               </div>
