@@ -8,6 +8,7 @@ import {
   examLabelFromClassId,
   getSpecializationGroups,
   getVisibleOnboardingSteps,
+  getWeakSubjectsStepSubtitle,
   getWeakSubjectOptions,
   isSpecializationStepComplete,
   isWeakSubjectsStepComplete,
@@ -67,7 +68,10 @@ function stepValidationMessage(step) {
     return "Sélectionne ta filière ou ta spécialité pour continuer.";
   }
   if (step.id === "weakSubjects") {
-    return "Choisis au moins une matière.";
+    const classId = typeof answers.classId === "string" ? answers.classId : "";
+    return classId === "term" || classId === "bts2"
+      ? "Choisis au moins une notion de ta filière."
+      : "Choisis au moins une matière.";
   }
   return "Réponds à la question pour continuer.";
 }
@@ -221,8 +225,12 @@ export default function OnboardingWizard() {
         <h1 className="font-[family-name:var(--font-geist-sans)] text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
           {step.title}
         </h1>
-        {step.subtitle ? (
-          <p className="mt-2 text-sm leading-relaxed text-slate-600">{step.subtitle}</p>
+        {step.id === "weakSubjects" || step.subtitle ? (
+          <p className="mt-2 text-sm leading-relaxed text-slate-600">
+            {step.id === "weakSubjects"
+              ? getWeakSubjectsStepSubtitle(answers)
+              : step.subtitle}
+          </p>
         ) : null}
 
         <div className="mt-6 space-y-3">

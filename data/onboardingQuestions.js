@@ -259,7 +259,44 @@ export function getWeakSubjectOptions(answers) {
   const spec =
     typeof answers.specializationId === "string" ? answers.specializationId : "";
   const subjects = getSubjectsForClass(classId, spec);
-  return subjects.map((s) => ({ value: s.id, label: s.name }));
+
+  if (classId === "3e") {
+    return subjects.map((s) => ({ value: s.id, label: s.name }));
+  }
+
+  if (classId === "term" || classId === "bts2") {
+    return subjects.flatMap((s) =>
+      (s.topics ?? []).map((topic, index) => ({
+        value: `${s.id}::${index}`,
+        label: `${s.name} — ${topic}`,
+      })),
+    );
+  }
+
+  return [];
+}
+
+/**
+ * @param {Record<string, unknown>} answers
+ */
+export function getWeakSubjectsStepSubtitle(answers) {
+  const classId = typeof answers.classId === "string" ? answers.classId : "";
+  if (classId === "term" || classId === "bts2") {
+    return "Choisis une ou plusieurs notions de ta filière.";
+  }
+  return "Choisis une ou plusieurs matières.";
+}
+
+/**
+ * @param {Record<string, unknown>} answers
+ * @param {string[]} weakSubjects
+ */
+export function areWeakSubjectsValid(answers, weakSubjects) {
+  if (!Array.isArray(weakSubjects) || weakSubjects.length === 0) {
+    return false;
+  }
+  const allowed = new Set(getWeakSubjectOptions(answers).map((o) => o.value));
+  return weakSubjects.every((v) => typeof v === "string" && allowed.has(v));
 }
 
 /**
