@@ -1,0 +1,15 @@
+<html>
+  <body>
+    <h2>Confirmez votre adresse e-mail</h2>
+    <p>Bienvenue sur Revision facile.</p>
+    <p>
+      Utilisez le code ci-dessous pour confirmer votre compte :
+      <strong>{{ .Token }}</strong>
+    </p>
+    <p>
+      Vous pouvez aussi confirmer directement avec ce lien :
+      <a href="{{ .ConfirmationURL }}">Confirmer mon e-mail</a>
+    </p>
+    <p>Si vous n'etes pas a l'origine de cette inscription, ignorez cet e-mail.</p>
+  </body>
+</html>

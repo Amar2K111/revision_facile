@@ -4,3 +4,7 @@
 [functions.stripe-webhook]
 # Stripe appelle l’URL sans JWT : ne pas exiger Authorization.
 verify_jwt = false
+
+[auth.email.template.confirmation]
+subject = "Confirme ton adresse e-mail"
+content_path = "./templates/confirmation-fr.html"
