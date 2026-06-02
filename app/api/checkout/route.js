@@ -24,24 +24,26 @@ function parsePositiveEur(raw) {
   return n;
 }
 
-/** Montant du pass 3 mois (paiement unique) en €. */
-function resolvePremiumPassEur() {
+/** Montant de l’abonnement annuel Premium en €. */
+function resolvePremiumYearlyEur() {
   return (
+    parsePositiveEur(process.env.STRIPE_PREMIUM_YEARLY_EUR) ??
     parsePositiveEur(process.env.STRIPE_PREMIUM_MONTHLY_EUR) ??
+    parsePositiveEur(process.env.NEXT_PUBLIC_PREMIUM_YEARLY_EUR) ??
     parsePositiveEur(process.env.NEXT_PUBLIC_PREMIUM_MONTHLY_EUR) ??
-    9.99
+    5.0
   );
 }
 
 /**
- * Ligne Checkout en paiement unique : Price Stripe one-time si ID renseigné, sinon `price_data`.
+ * Ligne Checkout en abonnement annuel : Price Stripe récurrent si ID renseigné, sinon `price_data`.
  */
-function buildPremiumPassLineItem(priceIdPass) {
-  if (priceIdPass) {
-    return { price: priceIdPass, quantity: 1 };
+function buildPremiumSubscriptionLineItem(priceIdYearly) {
+  if (priceIdYearly) {
+    return { price: priceIdYearly, quantity: 1 };
   }
 
-  const eur = resolvePremiumPassEur();
+  const eur = resolvePremiumYearlyEur();
   const unitAmount = eurToUnitAmount(eur);
   if (unitAmount < 50) {
     return null;
@@ -51,7 +53,8 @@ function buildPremiumPassLineItem(priceIdPass) {
     price_data: {
       currency: "eur",
       unit_amount: unitAmount,
-      product_data: { name: "Premium — accès 3 mois" },
+      recurring: { interval: "year" },
+      product_data: { name: "Premium — abonnement 12 mois" },
     },
     quantity: 1,
   };
@@ -71,7 +74,7 @@ function resolveAppOrigin(request) {
 }
 
 /**
- * Checkout Premium : paiement unique (défaut 9,99 €), accès activé 3 mois après validation (webhook).
+ * Checkout Premium : abonnement annuel (défaut 5,00 € / an), accès activé après validation (webhook).
  */
 export async function POST(request) {
   const supabase = await createSupabaseServerClient();
@@ -89,17 +92,18 @@ export async function POST(request) {
     /* corps optionnel, ignoré */
   }
 
-  const priceIdPass =
+  const priceIdYearly =
+    process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID?.trim() ||
     process.env.STRIPE_PREMIUM_PASS_PRICE_ID?.trim() ||
     process.env.STRIPE_PREMIUM_PRICE_ID?.trim() ||
     process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID?.trim();
 
-  const lineItem = buildPremiumPassLineItem(priceIdPass);
+  const lineItem = buildPremiumSubscriptionLineItem(priceIdYearly);
   if (!lineItem) {
     return NextResponse.json(
       {
         error:
-          "Configure STRIPE_PREMIUM_PASS_PRICE_ID (prix Stripe en paiement unique) ou un montant valide (STRIPE_PREMIUM_MONTHLY_EUR / NEXT_PUBLIC_PREMIUM_MONTHLY_EUR).",
+          "Configure STRIPE_PREMIUM_YEARLY_PRICE_ID (prix Stripe récurrent annuel) ou un montant valide (STRIPE_PREMIUM_YEARLY_EUR / NEXT_PUBLIC_PREMIUM_YEARLY_EUR).",
       },
       { status: 500 },
     );
@@ -120,7 +124,10 @@ export async function POST(request) {
     success_url: `${origin}/reviser?checkout=success`,
     cancel_url: `${origin}/paywall?checkout=cancel`,
     client_reference_id: user.id,
-    metadata: { supabase_user_id: user.id, premium_pass: "3m" },
+    metadata: { supabase_user_id: user.id, premium_plan: "yearly" },
+    subscription_data: {
+      metadata: { supabase_user_id: user.id, premium_plan: "yearly" },
+    },
   };
 
   if (existingCustomerId) {
@@ -132,9 +139,8 @@ export async function POST(request) {
   try {
     const session = await stripe.checkout.sessions.create({
       ...baseSession,
-      mode: "payment",
+      mode: "subscription",
       line_items: [lineItem],
-      ...(!existingCustomerId ? { customer_creation: "always" } : {}),
     });
 
     if (!session.url) {

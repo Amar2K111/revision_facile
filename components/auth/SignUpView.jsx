@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useId, useState } from "react";
 import { sanitizeNextPath } from "../../lib/authRedirects";
+import { resolvePostAuthPathClient } from "../../lib/postAuthRedirectClient";
 import { createSupabaseBrowserClient } from "../../lib/supabase/client";
 import { signInWithGoogleClient } from "../../lib/auth/signInWithGoogle";
 import AuthPageShell from "./AuthPageShell";
@@ -67,9 +68,10 @@ export default function SignUpView() {
         );
         return;
       }
-      if (data.session) {
+      if (data.session && data.user?.id) {
+        const dest = await resolvePostAuthPathClient(supabase, data.user.id, searchParams.get("next") ?? "");
         router.refresh();
-        router.replace(next);
+        router.replace(dest);
         return;
       }
       setInfoMessage(

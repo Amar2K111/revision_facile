@@ -17,6 +17,89 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "", {
 
 const cryptoProvider = Stripe.createSubtleCryptoProvider();
 
+function premiumUntilFromStripeSubscription(subscription: Stripe.Subscription): string | null {
+  const end = subscription.current_period_end;
+  if (typeof end === "number" && Number.isFinite(end)) {
+    return new Date(end * 1000).toISOString();
+  }
+  return null;
+}
+
+function subscriptionGrantsPremium(subscription: Stripe.Subscription): boolean {
+  const status = subscription.status;
+  return status === "active" || status === "trialing" || status === "past_due";
+}
+
+function buildProfilePatchFromSubscription(
+  subscription: Stripe.Subscription,
+  customerId: string | null | undefined,
+): { is_premium: boolean; premium_until?: string; stripe_customer_id?: string } {
+  const patch: { is_premium: boolean; premium_until?: string; stripe_customer_id?: string } = {
+    is_premium: subscriptionGrantsPremium(subscription),
+  };
+  const premiumUntil = premiumUntilFromStripeSubscription(subscription);
+  if (premiumUntil) {
+    patch.premium_until = premiumUntil;
+  }
+  if (customerId) {
+    patch.stripe_customer_id = customerId;
+  }
+  return patch;
+}
+
+function resolveCustomerId(rawCustomer: Stripe.Checkout.Session["customer"]): string | null {
+  if (typeof rawCustomer === "string") {
+    return rawCustomer;
+  }
+  if (rawCustomer && typeof rawCustomer === "object" && rawCustomer !== null && "id" in rawCustomer) {
+    return String((rawCustomer as { id: string }).id);
+  }
+  return null;
+}
+
+function resolveSubscriptionId(rawSubscription: string | Stripe.Subscription | null | undefined): string | null {
+  if (typeof rawSubscription === "string") {
+    return rawSubscription;
+  }
+  if (rawSubscription && typeof rawSubscription === "object" && "id" in rawSubscription) {
+    return String((rawSubscription as { id: string }).id);
+  }
+  return null;
+}
+
+async function syncProfileFromSubscription(
+  admin: ReturnType<typeof createClient>,
+  subscription: Stripe.Subscription,
+  customerId: string | null,
+  fallbackUserId: string | null | undefined,
+) {
+  const userId = subscription.metadata?.supabase_user_id ?? fallbackUserId;
+  if (!userId || typeof userId !== "string") {
+    return;
+  }
+
+  const patch = buildProfilePatchFromSubscription(subscription, customerId);
+  const { error } = await admin.from("profiles").update(patch).eq("id", userId);
+  if (error) {
+    console.error("[stripe-webhook] Erreur mise à update profil (abo):", error.message);
+  }
+}
+
+async function revokePremiumIfExpired(admin: ReturnType<typeof createClient>, userId: string) {
+  const { data: row } = await admin.from("profiles").select("premium_until").eq("id", userId).maybeSingle();
+  const untilRaw = row?.premium_until;
+  if (untilRaw != null && String(untilRaw).trim() !== "") {
+    const t = new Date(String(untilRaw)).getTime();
+    if (Number.isFinite(t) && t > Date.now()) {
+      return;
+    }
+  }
+  const { error } = await admin.from("profiles").update({ is_premium: false }).eq("id", userId);
+  if (error) {
+    console.error("[stripe-webhook] Révocation premium:", error.message);
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method !== "POST") {
     return new Response("Method Not Allowed", { status: 405 });
@@ -86,13 +169,7 @@ Deno.serve(async (req) => {
       const session = event.data.object as Stripe.Checkout.Session;
       const userId =
         session.metadata?.supabase_user_id ?? session.client_reference_id ?? undefined;
-      const rawCustomer = session.customer;
-      const customerId =
-        typeof rawCustomer === "string"
-          ? rawCustomer
-          : rawCustomer && typeof rawCustomer === "object" && rawCustomer !== null && "id" in rawCustomer
-            ? String((rawCustomer as { id: string }).id)
-            : null;
+      const customerId = resolveCustomerId(session.customer);
 
       if (userId && typeof userId === "string") {
         if (session.mode === "payment") {
@@ -110,14 +187,32 @@ Deno.serve(async (req) => {
             console.error("[stripe-webhook] Erreur mise à jour profil (pass):", error.message);
           }
         } else if (session.mode === "subscription") {
-          const patch: { is_premium: boolean; stripe_customer_id?: string } = { is_premium: true };
-          if (customerId) {
-            patch.stripe_customer_id = customerId;
+          const subscriptionId = resolveSubscriptionId(session.subscription);
+          if (subscriptionId) {
+            const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+            await syncProfileFromSubscription(admin, subscription, customerId, userId);
+          } else {
+            const patch: { is_premium: boolean; stripe_customer_id?: string } = { is_premium: true };
+            if (customerId) {
+              patch.stripe_customer_id = customerId;
+            }
+            const { error } = await admin.from("profiles").update(patch).eq("id", userId);
+            if (error) {
+              console.error("[stripe-webhook] Erreur mise à jour profil (abo sans subscription id):", error.message);
+            }
           }
-          const { error } = await admin.from("profiles").update(patch).eq("id", userId);
-          if (error) {
-            console.error("[stripe-webhook] Erreur mise à jour profil (abo):", error.message);
-          }
+        }
+      }
+      break;
+    }
+    case "customer.subscription.updated": {
+      const subscription = event.data.object as Stripe.Subscription;
+      const userId = subscription.metadata?.supabase_user_id;
+      if (userId && typeof userId === "string") {
+        if (subscriptionGrantsPremium(subscription)) {
+          await syncProfileFromSubscription(admin, subscription, null, userId);
+        } else {
+          await revokePremiumIfExpired(admin, userId);
         }
       }
       break;
@@ -126,23 +221,20 @@ Deno.serve(async (req) => {
       const subscription = event.data.object as Stripe.Subscription;
       const userId = subscription.metadata?.supabase_user_id;
       if (userId && typeof userId === "string") {
-        const { data: row } = await admin.from("profiles").select("premium_until").eq("id", userId).maybeSingle();
-        const untilRaw = row?.premium_until;
-        if (untilRaw != null && String(untilRaw).trim() !== "") {
-          const t = new Date(String(untilRaw)).getTime();
-          if (Number.isFinite(t) && t > Date.now()) {
-            break;
-          }
-        }
-        const { error } = await admin.from("profiles").update({ is_premium: false }).eq("id", userId);
-        if (error) {
-          console.error("[stripe-webhook] Révocation premium:", error.message);
-        }
+        await revokePremiumIfExpired(admin, userId);
       }
       break;
     }
-    case "customer.subscription.updated":
-    case "invoice.paid":
+    case "invoice.paid": {
+      const invoice = event.data.object as Stripe.Invoice;
+      const subscriptionId = resolveSubscriptionId(invoice.subscription);
+      if (subscriptionId) {
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        const customerId = resolveCustomerId(invoice.customer);
+        await syncProfileFromSubscription(admin, subscription, customerId, null);
+      }
+      break;
+    }
     case "invoice.payment_failed":
       break;
     default:

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useId, useState } from "react";
 import { sanitizeNextPath } from "../../lib/authRedirects";
+import { resolvePostAuthPathClient } from "../../lib/postAuthRedirectClient";
 import { createSupabaseBrowserClient } from "../../lib/supabase/client";
 import { signInWithGoogleClient } from "../../lib/auth/signInWithGoogle";
 import AuthPageShell from "./AuthPageShell";
@@ -35,7 +36,7 @@ export default function SignInView() {
       setFormError(null);
       setSubmitting(true);
       const supabase = createSupabaseBrowserClient();
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
@@ -48,10 +49,14 @@ export default function SignInView() {
         );
         return;
       }
+      const userId = signInData.user?.id;
+      const dest = userId
+        ? await resolvePostAuthPathClient(supabase, userId, searchParams.get("next") ?? "")
+        : next;
       router.refresh();
-      router.replace(next);
+      router.replace(dest);
     },
-    [router, next, email, password],
+    [router, next, email, password, searchParams],
   );
 
   const handleGoogle = useCallback(async () => {

@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useCallback, useState } from "react";
 
-/** Tarif affiché : paiement unique pour 3 mois d’accès. */
-const PRICE_PERIOD_LABEL = process.env.NEXT_PUBLIC_PREMIUM_PRICE_LABEL?.trim() || "9,99 €";
-/** Ancien tarif (référence 3 mois), affiché barré. */
+/** Tarif affiché : abonnement annuel 12 mois. */
+const PRICE_PERIOD_LABEL = process.env.NEXT_PUBLIC_PREMIUM_PRICE_LABEL?.trim() || "5,00 €";
+/** Ancien tarif (référence 12 mois), affiché barré. */
 const OLD_PRICE_LABEL = process.env.NEXT_PUBLIC_PREMIUM_OLD_PRICE_LABEL?.trim() || "29,99 €";
 
 function CheckIcon({ className }) {
@@ -66,12 +66,12 @@ function PremiumOfferCard({
 
         <div className="mt-auto rounded-xl border border-slate-100 bg-slate-50/90 px-3 py-3 text-center">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
-            Pour 3 mois
+            Pour 12 mois
           </p>
           {strikethroughPriceLabel ? (
             <p
               className="mt-1 font-[family-name:var(--font-geist-sans)] text-2xl font-bold tabular-nums tracking-tight text-black line-through decoration-2 decoration-black/80 sm:text-3xl"
-              aria-label={`Ancien tarif : ${strikethroughPriceLabel} pour 3 mois`}
+              aria-label={`Ancien tarif : ${strikethroughPriceLabel} pour 12 mois`}
             >
               {strikethroughPriceLabel}
             </p>
@@ -92,7 +92,7 @@ function PremiumOfferCard({
             disabled={busy}
             className="mt-2.5 flex w-full min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-600/25 transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-65"
           >
-            {thisBusy ? "Redirection…" : `Payer ${priceLabel} — 3 mois d’accès`}
+            {thisBusy ? "Redirection…" : "Continuer"}
           </button>
         </div>
       </div>
@@ -140,19 +140,19 @@ export default function PaywallPage() {
       <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-4 pb-10 pt-16 sm:max-w-lg sm:px-6">
         <div className="grid grid-cols-1 gap-4 sm:gap-5 sm:items-stretch">
           <PremiumOfferCard
-            subtitle="Un paiement unique : après validation sur Stripe, ton accès Premium reste actif 3 mois. Tu peux racheter un pass pour prolonger avant la fin."
+            subtitle="Abonnement annuel : après validation sur Stripe, ton accès Premium reste actif 12 mois, renouvelé automatiquement chaque année. Résiliable à tout moment."
             priceLabel={PRICE_PERIOD_LABEL}
             strikethroughPriceLabel={OLD_PRICE_LABEL}
-            priceHint="Offre exclusive examen"
-            plan="monthly"
+            priceHint="Offre exclusive examen · renouvellement annuel"
+            plan="yearly"
             loadingPlan={loadingPlan}
             onCheckout={startCheckout}
-            thirdChecklistLine="Chaque achat ajoute 3 mois (cumul si tu prolonges avant expiration)."
+            thirdChecklistLine="Accès 12 mois, renouvelé chaque année tant que l’abonnement est actif."
           />
         </div>
 
         <p className="mt-3 text-center text-[11px] text-slate-500">
-          En cliquant sur « Payer », tu es redirigé vers Stripe pour régler le pass 3 mois (pas de prélèvement récurrent automatique).
+          En cliquant sur « Continuer », tu es redirigé vers Stripe pour souscrire l’abonnement annuel (prélèvement récurrent chaque année, résiliable depuis ton espace client Stripe).
         </p>
 
         {error ? (

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
-import { POST_LOGIN_DEFAULT_PATH } from "../../lib/authRedirects";
+import { POST_LOGIN_DEFAULT_PATH, resolvePostAuthPath } from "../../lib/authRedirects";
+import { fetchProfileForRouting } from "../../lib/fetchProfileForRouting";
 import { createSupabaseServerClient } from "../../lib/supabase/server";
 
 export const metadata = {
@@ -17,7 +18,8 @@ export default async function AuthLayout({ children }) {
     data: { user },
   } = await supabase.auth.getUser();
   if (user) {
-    redirect(POST_LOGIN_DEFAULT_PATH);
+    const profile = await fetchProfileForRouting(supabase, user.id);
+    redirect(resolvePostAuthPath(profile, POST_LOGIN_DEFAULT_PATH));
   }
   return children;
 }

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import AuthUserAvatar from "../components/AuthUserAvatar";
-import { POST_LOGIN_DEFAULT_PATH } from "../lib/authRedirects";
+import { POST_LOGIN_DEFAULT_PATH, resolvePostAuthPath } from "../lib/authRedirects";
+import { fetchProfileForRouting } from "../lib/fetchProfileForRouting";
 import { createSupabaseServerClient } from "../lib/supabase/server";
 
 const AUTH_REVISER = "/auth/signin?next=/reviser";
@@ -18,7 +19,8 @@ export default async function HomePage() {
     data: { user },
   } = await supabase.auth.getUser();
   if (user) {
-    redirect(POST_LOGIN_DEFAULT_PATH);
+    const profile = await fetchProfileForRouting(supabase, user.id);
+    redirect(resolvePostAuthPath(profile, POST_LOGIN_DEFAULT_PATH));
   }
 
   return (
