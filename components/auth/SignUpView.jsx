@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useId, useState } from "react";
 import { POST_LOGIN_DEFAULT_PATH, sanitizeNextPath } from "../../lib/authRedirects";
 import { resolvePostAuthPathClient } from "../../lib/postAuthRedirectClient";
@@ -14,7 +14,6 @@ const inputClass =
   "w-full cursor-text rounded-lg border border-gray-200 bg-white px-4 py-3 text-base text-neutral-950 placeholder:text-slate-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 min-h-[44px] transition-all duration-200";
 
 export default function SignUpView() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const nameId = useId();
   const emailId = useId();
@@ -75,15 +74,14 @@ export default function SignUpView() {
           POST_LOGIN_DEFAULT_PATH,
           { profileRetries: 3 },
         );
-        router.refresh();
-        router.replace(dest);
+        window.location.assign(dest);
         return;
       }
       setInfoMessage(
         "Compte créé. Si tu ne te connectes pas tout de suite, vérifie ta boîte mail pour confirmer ton adresse (selon les réglages du projet).",
       );
     },
-    [router, next, email, password, confirm, name],
+    [next, email, password, confirm, name],
   );
 
   const handleGoogle = useCallback(async () => {

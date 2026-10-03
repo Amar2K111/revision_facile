@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useId, useState } from "react";
 import { POST_LOGIN_DEFAULT_PATH, sanitizeNextPath } from "../../lib/authRedirects";
 import { resolvePostAuthPathClient } from "../../lib/postAuthRedirectClient";
@@ -14,7 +14,6 @@ const inputClass =
   "w-full cursor-text rounded-lg border border-gray-200 bg-white px-4 py-3 text-base text-neutral-950 placeholder:text-slate-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 min-h-[44px] transition-all duration-200";
 
 export default function SignInView() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const emailId = useId();
   const passwordId = useId();
@@ -57,10 +56,9 @@ export default function SignInView() {
             searchParams.get("next") ?? POST_LOGIN_DEFAULT_PATH,
           )
         : next;
-      router.refresh();
-      router.replace(dest);
+      window.location.assign(dest);
     },
-    [router, next, email, password, searchParams],
+    [next, email, password, searchParams],
   );
 
   const handleGoogle = useCallback(async () => {
