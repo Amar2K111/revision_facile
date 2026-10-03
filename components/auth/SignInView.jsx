@@ -7,6 +7,7 @@ import { POST_LOGIN_DEFAULT_PATH, sanitizeNextPath } from "../../lib/authRedirec
 import { resolvePostAuthPathClient } from "../../lib/postAuthRedirectClient";
 import { createSupabaseBrowserClient } from "../../lib/supabase/client";
 import { signInWithGoogleClient } from "../../lib/auth/signInWithGoogle";
+import { AppLoadingScreen } from "../AppLoadingScreen";
 import AuthPageShell from "./AuthPageShell";
 import GoogleMark from "./GoogleMark";
 
@@ -23,6 +24,7 @@ export default function SignInView() {
   const [formError, setFormError] = useState(null);
   const [googlePending, setGooglePending] = useState(false);
   const [googleError, setGoogleError] = useState(null);
+  const [redirecting, setRedirecting] = useState(false);
 
   const next = sanitizeNextPath(searchParams.get("next") ?? POST_LOGIN_DEFAULT_PATH);
   const oauthFailed = searchParams.get("error") === "oauth";
@@ -39,8 +41,8 @@ export default function SignInView() {
         email: email.trim(),
         password,
       });
-      setSubmitting(false);
       if (error) {
+        setSubmitting(false);
         setFormError(
           error.message?.toLowerCase().includes("invalid login")
             ? "E-mail ou mot de passe incorrect."
@@ -48,6 +50,7 @@ export default function SignInView() {
         );
         return;
       }
+      setRedirecting(true);
       const userId = signInData.user?.id;
       const dest = userId
         ? await resolvePostAuthPathClient(
@@ -70,6 +73,10 @@ export default function SignInView() {
       setGoogleError(result.message);
     }
   }, [next]);
+
+  if (redirecting) {
+    return <AppLoadingScreen message="Connexion réussie…" />;
+  }
 
   return (
     <AuthPageShell>

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { HomeCtaAuth, HomeHeaderAuth, HomeHeroAuth } from "../components/HomeAuthButtons";
-import { LoggedInHomeRedirect } from "../components/LoggedInHomeRedirect";
+import { HomePageGate } from "../components/HomePageGate";
 import { SiteLogo } from "../components/SiteLogo";
 import { POST_LOGIN_DEFAULT_PATH, resolvePostAuthPath } from "../lib/authRedirects";
 import { fetchProfileForRouting } from "../lib/fetchProfileForRouting";
@@ -28,8 +28,8 @@ export default async function HomePage() {
   }
 
   return (
+    <HomePageGate>
     <div className="min-h-dvh bg-gradient-to-b from-indigo-50/80 via-slate-50 to-slate-50">
-      <LoggedInHomeRedirect />
       <header className="sticky top-0 z-20 border-b border-slate-200/70 bg-slate-50/85 pt-safe backdrop-blur-md">
         <div className="mx-auto flex min-h-14 w-full max-w-6xl items-center justify-between px-4 sm:min-h-16 sm:px-8">
           <SiteLogo />
@@ -75,5 +75,6 @@ export default async function HomePage() {
         </section>
       </main>
     </div>
+    </HomePageGate>
   );
 }

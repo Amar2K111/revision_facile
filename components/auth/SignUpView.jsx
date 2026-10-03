@@ -7,6 +7,7 @@ import { POST_LOGIN_DEFAULT_PATH, sanitizeNextPath } from "../../lib/authRedirec
 import { resolvePostAuthPathClient } from "../../lib/postAuthRedirectClient";
 import { createSupabaseBrowserClient } from "../../lib/supabase/client";
 import { signInWithGoogleClient } from "../../lib/auth/signInWithGoogle";
+import { AppLoadingScreen } from "../AppLoadingScreen";
 import AuthPageShell from "./AuthPageShell";
 import GoogleMark from "./GoogleMark";
 
@@ -28,6 +29,7 @@ export default function SignUpView() {
   const [infoMessage, setInfoMessage] = useState(null);
   const [googlePending, setGooglePending] = useState(false);
   const [googleError, setGoogleError] = useState(null);
+  const [redirecting, setRedirecting] = useState(false);
 
   const next = sanitizeNextPath(searchParams.get("next") ?? POST_LOGIN_DEFAULT_PATH);
   const signInHref = `/auth/signin?next=${encodeURIComponent(next)}`;
@@ -68,6 +70,7 @@ export default function SignUpView() {
         return;
       }
       if (data.session && data.user?.id) {
+        setRedirecting(true);
         const dest = await resolvePostAuthPathClient(
           supabase,
           data.user.id,
@@ -93,6 +96,10 @@ export default function SignUpView() {
       setGoogleError(result.message);
     }
   }, [next]);
+
+  if (redirecting) {
+    return <AppLoadingScreen message="Création de ton espace…" />;
+  }
 
   return (
     <AuthPageShell>
