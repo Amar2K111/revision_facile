@@ -4,12 +4,12 @@ import {
   resolvePremiumTrialDays,
   resolvePremiumYearlyEur,
 } from "../../../lib/premiumPricing";
-import { SITE_NAME } from "../../../lib/site";
+import { SITE_BRAND_NAME, SITE_NAME } from "../../../lib/site";
 import { getStripe } from "../../../lib/stripe/server";
 import { createSupabaseServerClient } from "../../../lib/supabase/server";
 
-const CHECKOUT_BRAND_NAME = SITE_NAME;
-const CHECKOUT_PRODUCT_NAME = `${SITE_NAME} Premium`;
+const CHECKOUT_BRAND_NAME = SITE_BRAND_NAME;
+const CHECKOUT_PRODUCT_NAME = `${SITE_BRAND_NAME} Premium`;
 
 export const runtime = "nodejs";
 
