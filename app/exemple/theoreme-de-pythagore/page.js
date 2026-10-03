@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import Link from "next/link";
 import { FicheMarkdownSection } from "@/components/MarkdownFiche";
+import { SiteLogo } from "@/components/SiteLogo";
 
 export const metadata = {
   title: "Fiche de révision Théorème de Pythagore – Maths Brevet 2027",
@@ -27,9 +28,7 @@ export default function ExemplePythagorePage() {
     <div className="min-h-dvh bg-gradient-to-b from-indigo-50/80 via-slate-50 to-slate-50">
       <header className="border-b border-slate-200/70 bg-slate-50/85 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-5 sm:h-16 sm:px-8">
-          <Link href="/" className="text-sm font-semibold text-indigo-700 hover:text-indigo-600">
-            ← Révision facile
-          </Link>
+          <SiteLogo href="/" size="sm" />
           <Link
             href="/auth/signup?next=/reviser"
             className="rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500"

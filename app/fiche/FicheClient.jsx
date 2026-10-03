@@ -5,6 +5,7 @@ import { startTransition, useEffect, useState } from "react";
 import AuthUserAvatar from "../../components/AuthUserAvatar";
 import PagedMarkdownFiche from "../../components/PagedMarkdownFiche";
 import PracticeQuiz from "../../components/PracticeQuiz";
+import { SiteLogo } from "../../components/SiteLogo";
 import { SHEET_MARKDOWN_VERSION, SHEET_STORAGE_KEY } from "../../lib/revisionSheet";
 
 export default function FicheClient() {
@@ -70,14 +71,19 @@ export default function FicheClient() {
   return (
     <div className="min-h-dvh bg-gradient-to-b from-indigo-50/80 via-slate-50 to-slate-50 pt-safe pb-safe">
       <div className={`mx-auto max-w-3xl px-4 py-5 sm:px-6 sm:py-10 lg:px-8 ${hasQuiz ? "pb-28 sm:pb-10" : ""}`}>
-        <div className="flex items-center justify-between gap-2 print:hidden">
-          <Link
-            href="/reviser"
-            className="inline-flex min-h-11 items-center text-sm font-semibold text-indigo-700 hover:text-indigo-600 active:text-indigo-800"
-          >
-            ← Nouvelle fiche
-          </Link>
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        <div className="grid min-h-14 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 print:hidden">
+          <div className="flex justify-start">
+            <Link
+              href="/reviser"
+              className="inline-flex min-h-11 items-center text-sm font-semibold text-indigo-700 hover:text-indigo-600 active:text-indigo-800"
+            >
+              ← Nouvelle fiche
+            </Link>
+          </div>
+          <div className="flex justify-center">
+            <SiteLogo variant="domain" size="sm" href="/" />
+          </div>
+          <div className="flex shrink-0 items-center justify-end gap-2 sm:gap-3">
             <AuthUserAvatar />
             <button
               type="button"
@@ -105,8 +111,10 @@ export default function FicheClient() {
 
             <PagedMarkdownFiche key={markdown} markdown={markdown} />
 
-            <footer className="mt-8 text-center text-[11px] text-slate-500 print:mt-6 print:text-slate-400">
-              Fiche générée avec Révision facile — usage personnel pour réviser.
+            <footer className="mt-8 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-[11px] text-slate-500 print:mt-6 print:text-slate-400">
+              <span>Fiche générée avec</span>
+              <SiteLogo variant="domain" size="xs" linked={false} />
+              <span>— usage personnel pour réviser.</span>
             </footer>
           </div>
 

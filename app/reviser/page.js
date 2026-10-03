@@ -17,6 +17,7 @@ import {
 import { createSupabaseBrowserClient } from "../../lib/supabase/client";
 import AuthUserAvatar from "../../components/AuthUserAvatar";
 import { SelectField } from "../../components/SelectField";
+import { SiteLogo } from "../../components/SiteLogo";
 
 const REVISION_TIPS = [
   "Répétition espacée : revois la même notion à J+1, J+3 et J+7 pour mieux l’ancrer.",
@@ -250,8 +251,14 @@ export default function ReviserPage() {
               </div>
 
               <div className="pointer-events-none flex min-w-0 flex-col items-center justify-center text-center">
-                <h1 className="min-w-0 text-balance font-[family-name:var(--font-geist-sans)] text-base font-semibold leading-snug tracking-tight text-slate-900 sm:text-xl md:text-2xl">
-                  RevisionFacile.com
+                <h1 className="m-0 flex min-w-0 justify-center">
+                  <SiteLogo
+                    variant="domain"
+                    size="sm"
+                    href="/"
+                    className="pointer-events-auto justify-center"
+                    labelClassName="min-w-0 text-balance font-[family-name:var(--font-geist-sans)] text-base font-semibold leading-snug tracking-tight sm:text-xl md:text-2xl"
+                  />
                 </h1>
                 <p className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-indigo-600/90 sm:mt-2 sm:text-xs">
                   Fiche de révision + quiz
