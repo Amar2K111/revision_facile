@@ -9,6 +9,8 @@
     "start": "next start",
     "lint": "eslint",
     "stripe:login": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/stripe.ps1 login",
+    "stripe:connect": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/stripe-connect.ps1",
+    "vercel:env:push": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/vercel-env-push.ps1",
     "stripe:listen": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/stripe.ps1 listen --forward-to localhost:3000/api/stripe/webhook",
     "stripe:version": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/stripe.ps1 version"
   },

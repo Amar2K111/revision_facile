@@ -1,4 +1,9 @@
 import { NextResponse } from "next/server";
+import {
+  resolvePremiumMonthlyEur,
+  resolvePremiumTrialDays,
+  resolvePremiumYearlyEur,
+} from "../../../lib/premiumPricing";
 import { getStripe } from "../../../lib/stripe/server";
 import { createSupabaseServerClient } from "../../../lib/supabase/server";
 
@@ -9,36 +14,7 @@ function eurToUnitAmount(eur) {
   return Math.round(eur * 100);
 }
 
-function parsePositiveEur(raw) {
-  if (raw == null || typeof raw !== "string") {
-    return null;
-  }
-  const t = raw.trim();
-  if (!t) {
-    return null;
-  }
-  const n = Number(t.replace(",", "."));
-  if (!Number.isFinite(n) || n <= 0) {
-    return null;
-  }
-  return n;
-}
-
-/** Montant de l’abonnement annuel Premium en €. */
-function resolvePremiumYearlyEur() {
-  return (
-    parsePositiveEur(process.env.STRIPE_PREMIUM_YEARLY_EUR) ??
-    parsePositiveEur(process.env.STRIPE_PREMIUM_MONTHLY_EUR) ??
-    parsePositiveEur(process.env.NEXT_PUBLIC_PREMIUM_YEARLY_EUR) ??
-    parsePositiveEur(process.env.NEXT_PUBLIC_PREMIUM_MONTHLY_EUR) ??
-    5.0
-  );
-}
-
-/**
- * Ligne Checkout en abonnement annuel : Price Stripe récurrent si ID renseigné, sinon `price_data`.
- */
-function buildPremiumSubscriptionLineItem(priceIdYearly) {
+function buildYearlyLineItem(priceIdYearly) {
   if (priceIdYearly) {
     return { price: priceIdYearly, quantity: 1 };
   }
@@ -54,7 +30,29 @@ function buildPremiumSubscriptionLineItem(priceIdYearly) {
       currency: "eur",
       unit_amount: unitAmount,
       recurring: { interval: "year" },
-      product_data: { name: "Premium — abonnement 12 mois" },
+      product_data: { name: "Premium — abonnement annuel" },
+    },
+    quantity: 1,
+  };
+}
+
+function buildMonthlyLineItem(priceIdMonthly) {
+  if (priceIdMonthly) {
+    return { price: priceIdMonthly, quantity: 1 };
+  }
+
+  const eur = resolvePremiumMonthlyEur();
+  const unitAmount = eurToUnitAmount(eur);
+  if (unitAmount < 50) {
+    return null;
+  }
+
+  return {
+    price_data: {
+      currency: "eur",
+      unit_amount: unitAmount,
+      recurring: { interval: "month" },
+      product_data: { name: "Premium — abonnement mensuel" },
     },
     quantity: 1,
   };
@@ -74,7 +72,7 @@ function resolveAppOrigin(request) {
 }
 
 /**
- * Checkout Premium : abonnement annuel (défaut 5,00 € / an), accès activé après validation (webhook).
+ * Checkout Premium : annuel (essai 3 jours) ou mensuel.
  */
 export async function POST(request) {
   const supabase = await createSupabaseServerClient();
@@ -86,24 +84,34 @@ export async function POST(request) {
     return NextResponse.json({ error: "Connexion requise." }, { status: 401 });
   }
 
+  let plan = "yearly";
   try {
-    await request.json();
+    const body = await request.json();
+    if (body?.plan === "monthly") {
+      plan = "monthly";
+    }
   } catch {
-    /* corps optionnel, ignoré */
+    /* corps optionnel */
   }
 
   const priceIdYearly =
     process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID?.trim() ||
     process.env.STRIPE_PREMIUM_PASS_PRICE_ID?.trim() ||
-    process.env.STRIPE_PREMIUM_PRICE_ID?.trim() ||
-    process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID?.trim();
+    process.env.STRIPE_PREMIUM_PRICE_ID?.trim();
+  const priceIdMonthly = process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID?.trim();
 
-  const lineItem = buildPremiumSubscriptionLineItem(priceIdYearly);
+  const lineItem =
+    plan === "monthly"
+      ? buildMonthlyLineItem(priceIdMonthly)
+      : buildYearlyLineItem(priceIdYearly);
+
   if (!lineItem) {
     return NextResponse.json(
       {
         error:
-          "Configure STRIPE_PREMIUM_YEARLY_PRICE_ID (prix Stripe récurrent annuel) ou un montant valide (STRIPE_PREMIUM_YEARLY_EUR / NEXT_PUBLIC_PREMIUM_YEARLY_EUR).",
+          plan === "monthly"
+            ? "Configure STRIPE_PREMIUM_MONTHLY_PRICE_ID ou STRIPE_PREMIUM_MONTHLY_EUR."
+            : "Configure STRIPE_PREMIUM_YEARLY_PRICE_ID ou STRIPE_PREMIUM_YEARLY_EUR.",
       },
       { status: 500 },
     );
@@ -119,14 +127,16 @@ export async function POST(request) {
     .maybeSingle();
 
   const existingCustomerId = profileRow?.stripe_customer_id?.trim();
+  const trialDays = plan === "yearly" ? resolvePremiumTrialDays() : 0;
 
   const baseSession = {
     success_url: `${origin}/reviser?checkout=success`,
     cancel_url: `${origin}/paywall?checkout=cancel`,
     client_reference_id: user.id,
-    metadata: { supabase_user_id: user.id, premium_plan: "yearly" },
+    metadata: { supabase_user_id: user.id, premium_plan: plan },
     subscription_data: {
-      metadata: { supabase_user_id: user.id, premium_plan: "yearly" },
+      metadata: { supabase_user_id: user.id, premium_plan: plan },
+      ...(trialDays > 0 ? { trial_period_days: trialDays } : {}),
     },
   };
 

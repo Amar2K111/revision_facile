@@ -7,10 +7,10 @@ import { createSupabaseServerClient } from "../lib/supabase/server";
 
 export const metadata = {
   title: {
-    absolute: "Fiches de révision Brevet 2027, Bac et BTS | Révision facile",
+    absolute: "Fiches de révision Bac 2027 — Terminale | Révision facile",
   },
   description:
-    "Choisis ta classe, ta matière et ton chapitre : ta fiche de révision conforme au programme 2026-2027 est prête en quelques secondes. Brevet, Bac et BTS 2027.",
+    "Tu passes le Bac cette année ? Génère ta fiche de révision + quiz en quelques secondes, alignée sur le programme 2026-2027. Aussi pour le Brevet et le BTS.",
   alternates: { canonical: "/" },
 };
 
@@ -36,18 +36,24 @@ export default async function HomePage() {
       <main>
         <section className="mx-auto max-w-6xl px-4 pb-12 pt-10 sm:px-8 sm:pb-20 sm:pt-16">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="inline-flex rounded-full border border-indigo-200/80 bg-indigo-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-indigo-700 sm:text-[11px] sm:tracking-[0.18em]">
-              3ᵉ · Bac · BTS — 2027
-            </p>
+            <div className="flex flex-col items-center gap-2 sm:flex-row sm:justify-center sm:gap-3">
+              <p className="inline-flex rounded-full border border-indigo-300/90 bg-indigo-600 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white shadow-sm shadow-indigo-600/25 sm:text-xs">
+                Bac 2027
+              </p>
+              <p className="text-[11px] font-medium text-slate-500 sm:text-xs">
+                aussi Brevet · BTS
+              </p>
+            </div>
             <h1 className="mt-5 font-[family-name:var(--font-geist-sans)] text-[1.75rem] font-semibold leading-tight tracking-tight text-slate-900 sm:mt-6 sm:text-4xl sm:leading-[1.12] md:text-[2.75rem]">
-              Révise plus vite,{" "}
-              <span className="mt-1 block text-indigo-700 sm:mt-2">réussis mieux</span>
+              Tu passes le Bac{" "}
+              <span className="text-indigo-700">cette année</span> ?
             </h1>
-            <p className="mx-auto mt-6 max-w-md text-pretty text-base leading-relaxed text-slate-700 sm:mt-7 sm:text-lg">
-              Pour les collégiens, lycéens et étudiants BTS.
+            <p className="mx-auto mt-5 max-w-lg text-pretty text-base leading-relaxed text-slate-700 sm:mt-6 sm:text-lg">
+              Terminale : choisis ta spé, ta matière et ton chapitre — ta fiche + ton quiz
+              sont prêts en quelques secondes.
             </p>
-            <p className="mx-auto mt-2 max-w-md text-pretty text-[15px] leading-relaxed text-slate-500 sm:text-base">
-              Tu choisis une notion. On te génère la fiche + le quiz.
+            <p className="mx-auto mt-3 max-w-md text-pretty text-sm leading-relaxed text-slate-500">
+              Également pour la 3ᵉ (Brevet) et les étudiants BTS.
             </p>
             <div className="mt-8 sm:mt-10">
               <HomeHeroAuth />
@@ -58,10 +64,10 @@ export default async function HomePage() {
         <section className="border-t border-slate-200/80 bg-indigo-600 py-14 sm:py-16">
           <div className="mx-auto max-w-3xl px-5 text-center sm:px-8">
             <h2 className="font-[family-name:var(--font-geist-sans)] text-xl font-semibold text-white sm:text-2xl">
-              Ta première fiche t’attend
+              Prêt à réviser pour le Bac ?
             </h2>
             <p className="mt-3 text-sm text-indigo-100 sm:text-base">
-              Classe, matière, notion — c’est tout.
+              Spé, matière, notion — c’est tout.
             </p>
             <HomeCtaAuth />
           </div>
