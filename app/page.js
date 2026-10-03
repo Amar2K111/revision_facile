@@ -50,10 +50,10 @@ export default async function HomePage() {
             </div>
             <h1 className="mt-5 font-[family-name:var(--font-geist-sans)] text-[1.75rem] font-semibold leading-tight tracking-tight text-slate-900 sm:mt-6 sm:text-4xl sm:leading-[1.12] md:text-[2.75rem]">
               Tu procrastines{" "}
-              <span className="text-indigo-700">pour le Bac ?</span>
+              <span className="text-indigo-700">tes révisions pour le Bac ?</span>
             </h1>
             <p className="mx-auto mt-5 max-w-lg text-pretty text-base leading-relaxed text-slate-700 sm:mt-6 sm:text-lg">
-              Tu choisis ta spé et ton chapitre — on te génère la fiche + le quiz. Tu révises
+              Tu choisis ta spé et ton chapitre. On te génère la fiche et le quiz. Tu révises
               l’essentiel, sans te noyer dans le cours.
             </p>
             <div className="mt-8 sm:mt-10">
@@ -68,7 +68,7 @@ export default async function HomePage() {
               Prêt à réviser pour le Bac ?
             </h2>
             <p className="mt-3 text-sm text-indigo-100 sm:text-base">
-              Spé, matière, chapitre — chaque notion compte.
+              Spé, matière, chapitre. Tu avances notion par notion.
             </p>
             <HomeCtaAuth />
           </div>

@@ -8,7 +8,7 @@ export function SiteFooter() {
     <footer className="print:hidden border-t border-slate-200/80 bg-slate-50/90 pb-safe">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-5 py-6 sm:flex-row sm:justify-between sm:px-8 sm:py-8">
         <p className="text-xs text-slate-500">© {year} Révision facile</p>
-        <nav aria-label="Liens légaux" className="flex flex-wrap items-center justify-center gap-x-1 gap-y-1 sm:gap-x-2">
+        <nav aria-label="Liens du site" className="flex flex-wrap items-center justify-center gap-x-1 gap-y-1 sm:gap-x-2">
           <Link
             href="/mentions-legales"
             className="inline-flex min-h-11 items-center rounded-lg px-3 text-sm text-slate-600 transition hover:text-indigo-700 active:bg-slate-100"

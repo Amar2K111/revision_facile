@@ -83,6 +83,8 @@ export function SelectField({
   children,
   /** Liste du portail : sous le champ (défaut) ou au-dessus — utile pour « Sujet » en bas de formulaire */
   menuPlacement = "below",
+  /** Champs plus compacts (desktop / formulaires longs). */
+  compact = false,
 }) {
   const autoId = useId();
   const listId = `${id ?? autoId}-list`;
@@ -241,8 +243,11 @@ export function SelectField({
       : null;
 
   return (
-    <div className="space-y-1.5">
-      <label htmlFor={fieldId} className="block text-sm font-medium text-slate-700">
+    <div className={compact ? "space-y-1" : "space-y-1.5"}>
+      <label
+        htmlFor={fieldId}
+        className={`block font-medium text-slate-700 ${compact ? "text-xs md:text-sm" : "text-sm"}`}
+      >
         {label}
       </label>
       <div ref={rootRef} className="relative">
@@ -261,7 +266,9 @@ export function SelectField({
               setOpen(true);
             }
           }}
-          className="peer flex min-h-12 w-full cursor-pointer items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 pr-10 text-left text-base text-slate-900 shadow-sm outline-none transition hover:border-slate-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 active:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+          className={`peer flex w-full cursor-pointer items-center justify-between rounded-xl border border-slate-200 bg-white px-4 pr-10 text-left text-slate-900 shadow-sm outline-none transition hover:border-slate-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 active:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400 ${
+            compact ? "min-h-11 py-2 text-sm md:min-h-10 md:py-1.5" : "min-h-12 py-3 text-base"
+          }`}
         >
           <span className={displayLabel ? "text-slate-900" : "text-slate-400"}>
             {displayLabel || "—"}
@@ -277,7 +284,11 @@ export function SelectField({
         </span>
       </div>
       {listBody}
-      {hint ? <p className="text-xs text-slate-500">{hint}</p> : null}
+      {hint ? (
+        <p className={`text-slate-500 ${compact ? "text-[11px] leading-snug md:text-xs" : "text-xs"}`}>
+          {hint}
+        </p>
+      ) : null}
     </div>
   );
 }

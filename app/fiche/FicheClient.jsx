@@ -140,7 +140,7 @@ export default function FicheClient() {
               </p>
             ) : null}
 
-            <PagedMarkdownFiche key={markdown} markdown={markdown} />
+            <PagedMarkdownFiche key={markdown} markdown={markdown} hasQuiz={hasQuiz} />
 
             <footer className="mt-8 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-[11px] text-slate-500 print:mt-6 print:text-slate-400">
               <span>Fiche générée avec</span>

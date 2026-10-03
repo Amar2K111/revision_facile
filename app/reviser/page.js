@@ -16,26 +16,10 @@ import {
 } from "../../lib/revisionSheet";
 import { createSupabaseBrowserClient } from "../../lib/supabase/client";
 import AuthUserAvatar from "../../components/AuthUserAvatar";
+import { RevisionTipCard } from "../../components/RevisionTipCard";
 import { SelectField } from "../../components/SelectField";
 import { SiteLogo } from "../../components/SiteLogo";
-
-const REVISION_TIPS = [
-  "Répétition espacée : revois la même notion à J+1, J+3 et J+7 pour mieux l’ancrer.",
-  "Rappel actif : cache ta fiche et reformule à l’oral ou à l’écrit avant de relire.",
-  "Méthode Feynman : explique le sujet simplement, comme à quelqu’un qui découvre.",
-  "Alterne lecture courte, questions-réponses et réécriture — plusieurs chemins mémorisent mieux.",
-  "Repère tes erreurs récurrentes et cible-les : c’est souvent là que le gain est le plus rapide.",
-  "Cartes / flashcards : teste-toi sur les définitions et formules, pas seulement en les relisant.",
-  "Carte mentale : relie les idées entre elles — les liens aident à retrouver le détail.",
-  "Bloc Pomodoro (ex. 25 min + petite pause) : garde une intensité soutenable sur la durée.",
-  "Dors assez : la consolidation se fait aussi la nuit ; évite le tout-nuit avant un contrôle.",
-  "Croissance vs perf : vise la compréhension et la progression, pas la perfection immédiate.",
-  "Transforme ton cours en questions avant d’ouvrir les réponses — comme un petit examen blanc.",
-  "Synthèse express : résume une page en 5 lignes pour vérifier ce que tu as vraiment retenu.",
-  "Lire à voix haute engage une autre voie de mémoire — utile pour les listes et définitions.",
-  "Créneau fixe : mieux vaut 20 minutes chaque jour qu’une longue bafouille improvisée.",
-  "Hydrate-toi et aère : l’attention baisse vite quand tu es fatigué ou déshydraté.",
-];
+import { REVISION_TIPS } from "../../data/revisionTips";
 
 export default function ReviserPage() {
   const router = useRouter();
@@ -231,50 +215,44 @@ export default function ReviserPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-indigo-50/80 via-slate-50 to-slate-50 pt-safe pb-safe">
-      <div className="mx-auto flex w-full max-w-xl flex-col px-4 py-8 sm:px-8 sm:py-16">
-        <header>
-          <div className="mb-6 print:hidden sm:mb-8">
-            <div className="grid min-h-14 grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] items-center gap-x-2 px-safe sm:min-h-[4.5rem]">
-              <div className="flex justify-start">
-                {loggedIn === false ? (
-                  <Link
-                    href="/"
-                    aria-label="Retour à l’accueil"
-                    className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-xl font-semibold leading-none text-indigo-700 transition hover:bg-indigo-50 hover:text-indigo-600 active:bg-indigo-100"
-                  >
-                    <span aria-hidden>←</span>
-                  </Link>
-                ) : (
-                  <div className="h-11 w-11 shrink-0" aria-hidden />
-                )}
+    <div className="min-h-dvh bg-gradient-to-b from-indigo-50/80 via-slate-50 to-slate-50 pt-safe pb-safe md:flex md:flex-col md:justify-center">
+      <div className="mx-auto flex w-full max-w-xl flex-col px-4 py-6 sm:px-6 md:max-w-lg md:py-4 lg:px-8">
+        <header className="print:hidden">
+          <div className="relative mb-4 md:mb-5">
+            {loggedIn === false ? (
+              <div className="absolute left-0 top-0 z-10">
+                <Link
+                  href="/"
+                  aria-label="Retour à l’accueil"
+                  className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-xl font-semibold leading-none text-indigo-700 transition hover:bg-indigo-50 hover:text-indigo-600 active:bg-indigo-100"
+                >
+                  <span aria-hidden>←</span>
+                </Link>
               </div>
-
-              <div className="pointer-events-none flex min-w-0 flex-col items-center justify-center text-center">
-                <h1 className="m-0 flex min-w-0 justify-center">
-                  <SiteLogo
-                    variant="domain"
-                    size="sm"
-                    href="/reviser"
-                    className="pointer-events-auto justify-center"
-                    labelClassName="min-w-0 text-balance font-[family-name:var(--font-geist-sans)] text-base font-semibold leading-snug tracking-tight sm:text-xl md:text-2xl"
-                  />
-                </h1>
-                <p className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-indigo-600/90 sm:mt-2 sm:text-xs">
-                  Fiche de révision + quiz
-                </p>
-              </div>
-
-              <div className="flex justify-end">
-                <AuthUserAvatar />
-              </div>
+            ) : null}
+            <div className="absolute right-0 top-0 z-10">
+              <AuthUserAvatar />
+            </div>
+            <div className="flex flex-col items-center px-12 text-center">
+              <h1 className="m-0 flex justify-center">
+                <SiteLogo
+                  variant="domain"
+                  size="sm"
+                  href="/reviser"
+                  labelClassName="font-[family-name:var(--font-geist-sans)] text-base font-semibold leading-snug tracking-tight sm:text-lg md:text-xl"
+                />
+              </h1>
+              <p className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-indigo-600/90 md:mt-1.5 md:text-[11px]">
+                Fiche de révision + quiz
+              </p>
             </div>
           </div>
 
-          <div className="space-y-5 rounded-2xl border border-white/60 bg-white/70 p-4 shadow-[0_20px_60px_-24px_rgba(15,23,42,0.35)] backdrop-blur-md sm:p-6">
+          <div className="space-y-3.5 rounded-2xl border border-white/60 bg-white/70 p-4 shadow-[0_20px_60px_-24px_rgba(15,23,42,0.35)] backdrop-blur-md md:space-y-3 md:p-5">
             <SelectField
               id="class"
               label="Classe"
+              compact
               hint={
                 classe?.available
                   ? null
@@ -295,6 +273,7 @@ export default function ReviserPage() {
               <SelectField
                 id="specialization"
                 label="Spécialisation"
+                compact
                 hint={
                   classe?.available
                     ? "Choix utilisé pour proposer les matières et sujets du bac."
@@ -318,6 +297,7 @@ export default function ReviserPage() {
               <SelectField
                 id="bts-program"
                 label="BTS"
+                compact
                 hint={
                   classe?.available
                     ? "Choix de ton BTS (2ᵉ année) pour afficher les matières."
@@ -343,6 +323,7 @@ export default function ReviserPage() {
               key={classId === "3e" ? classId : `${classId}-${specializationId}`}
               id="subject"
               label="Matière"
+              compact
               hint={subjectHintText}
               value={subjectId}
               onChange={handleSubjectChange}
@@ -363,6 +344,7 @@ export default function ReviserPage() {
               id="topic"
               label="Sujet / notion"
               menuPlacement="above"
+              compact
               hint={
                 subject
                   ? `${topics.length} notion(s) dans cette matière.`
@@ -386,13 +368,13 @@ export default function ReviserPage() {
             </SelectField>
 
             {classe?.available ? (
-              <div className="space-y-2 pt-1">
+              <div className="space-y-2 pt-0.5 md:pt-1">
                 <button
                   type="button"
                   onClick={handleGenerate}
                   disabled={!canGenerate || loading || isPremium === null}
                   aria-busy={loading}
-                  className={`inline-flex min-h-[3.25rem] w-full items-center justify-center gap-2.5 rounded-xl px-5 text-sm font-semibold text-white shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 motion-safe:transition-colors active:scale-[0.99] ${
+                  className={`inline-flex min-h-12 w-full items-center justify-center gap-2.5 rounded-xl px-5 text-sm font-semibold text-white shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 motion-safe:transition-colors active:scale-[0.99] md:min-h-11 ${
                     loading
                       ? "reviser-btn-loading-motion cursor-wait bg-indigo-600 shadow-indigo-600/30"
                       : !canGenerate || isPremium === null
@@ -424,17 +406,13 @@ export default function ReviserPage() {
                     >
                       <div className="reviser-loading-bar-sweep h-full rounded-full bg-indigo-400/70" />
                     </div>
-                    <div
-                      className="mt-4 rounded-xl border border-indigo-100/80 bg-indigo-50/60 px-4 py-3 text-center shadow-inner shadow-indigo-100/40"
+                    <RevisionTipCard
+                      className="mt-4 text-center"
+                      title={REVISION_TIPS[loadingTipIndex]?.title}
                       aria-live="polite"
                     >
-                      <p className="text-[0.65rem] font-semibold uppercase tracking-widest text-indigo-600/90">
-                        Astuce révision
-                      </p>
-                      <p className="mt-2 text-sm leading-relaxed text-slate-700">
-                        {REVISION_TIPS[loadingTipIndex]}
-                      </p>
-                    </div>
+                      {REVISION_TIPS[loadingTipIndex]?.text}
+                    </RevisionTipCard>
                   </>
                 ) : null}
                 {error ? (
