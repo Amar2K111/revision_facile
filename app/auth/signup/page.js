@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import SignUpView from "../../../components/auth/SignUpView";
 import {
-  POST_LOGIN_DEFAULT_PATH,
+  loggedInAppEntryPath,
   resolvePostSignupPath,
 } from "../../../lib/authRedirects";
 import { fetchProfileForRouting } from "../../../lib/fetchProfileForRouting";
@@ -27,7 +27,9 @@ export default async function SignUpPage({ searchParams }) {
   } = await supabase.auth.getUser();
   if (user) {
     const profile = await fetchProfileForRouting(supabase, user.id);
-    redirect(resolvePostSignupPath(profile, rawNext || POST_LOGIN_DEFAULT_PATH));
+    redirect(
+      rawNext.trim() ? resolvePostSignupPath(profile, rawNext) : loggedInAppEntryPath(profile),
+    );
   }
 
   return (

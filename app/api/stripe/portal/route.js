@@ -4,7 +4,7 @@ import { createSupabaseServerClient } from "../../../../lib/supabase/server";
 
 export const runtime = "nodejs";
 
-const ALLOWED_RETURN_PATHS = new Set(["/", "/reviser", "/fiche", "/paywall"]);
+const ALLOWED_RETURN_PATHS = new Set(["/reviser", "/fiche", "/paywall"]);
 
 function resolveAppOrigin(request) {
   const fromEnv = process.env.NEXT_PUBLIC_APP_URL?.trim();

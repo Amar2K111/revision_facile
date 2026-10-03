@@ -86,8 +86,10 @@ export async function proxy(request) {
     }
 
     if (isAuthEntryPath(pathname)) {
-      const rawNext = request.nextUrl.searchParams.get("next") ?? "";
-      const dest = resolvePostAuthPath(profile, rawNext || POST_LOGIN_DEFAULT_PATH);
+      const rawNext = request.nextUrl.searchParams.get("next")?.trim() ?? "";
+      const dest = rawNext
+        ? resolvePostAuthPath(profile, rawNext)
+        : loggedInAppEntryPath(profile);
       return NextResponse.redirect(new URL(dest, request.url));
     }
 
