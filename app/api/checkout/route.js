@@ -4,8 +4,10 @@ import {
   resolvePremiumTrialDays,
   resolvePremiumYearlyEur,
 } from "../../../lib/premiumPricing";
+import { userIsEligibleForPremiumTrial } from "../../../lib/premiumTrialEligibility";
 import { SITE_BRAND_NAME, SITE_NAME } from "../../../lib/site";
 import { getStripe } from "../../../lib/stripe/server";
+import { createSupabaseAdminClient } from "../../../lib/supabase/admin";
 import { createSupabaseServerClient } from "../../../lib/supabase/server";
 
 const CHECKOUT_BRAND_NAME = SITE_BRAND_NAME;
@@ -126,12 +128,26 @@ export async function POST(request) {
 
   const { data: profileRow } = await supabase
     .from("profiles")
-    .select("stripe_customer_id")
+    .select("stripe_customer_id, premium_trial_used_at")
     .eq("id", user.id)
     .maybeSingle();
 
   const existingCustomerId = profileRow?.stripe_customer_id?.trim();
-  const trialDays = plan === "yearly" ? resolvePremiumTrialDays() : 0;
+  const admin = createSupabaseAdminClient();
+  let trialDays = 0;
+  if (plan === "yearly") {
+    try {
+      const eligible = await userIsEligibleForPremiumTrial(
+        stripe,
+        admin,
+        { ...profileRow, id: user.id },
+        user.email,
+      );
+      trialDays = eligible ? resolvePremiumTrialDays() : 0;
+    } catch {
+      trialDays = 0;
+    }
+  }
 
   const baseSession = {
     locale: "fr",

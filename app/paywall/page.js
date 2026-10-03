@@ -78,6 +78,8 @@ function SectionLabel({ id, children }) {
 export default function PaywallPage() {
   const [loadingPlan, setLoadingPlan] = useState(null);
   const [error, setError] = useState(null);
+  const [trialDays, setTrialDays] = useState(TRIAL_DAYS);
+  const [trialEligible, setTrialEligible] = useState(TRIAL_DAYS > 0);
 
   const startCheckout = useCallback(async (plan) => {
     setError(null);
@@ -104,6 +106,21 @@ export default function PaywallPage() {
   }, []);
 
   const yearlyBusy = loadingPlan === "yearly";
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const res = await fetch("/api/premium/trial-eligibility");
+        const data = await res.json().catch(() => ({}));
+        if (typeof data.eligible === "boolean") {
+          setTrialEligible(data.eligible);
+          setTrialDays(typeof data.trialDays === "number" ? data.trialDays : 0);
+        }
+      } catch {
+        /* garde les valeurs par défaut */
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -170,16 +187,24 @@ export default function PaywallPage() {
               >
                 {yearlyBusy
                   ? "Redirection…"
-                  : TRIAL_DAYS > 0
-                    ? `Essayer gratuitement pendant ${TRIAL_DAYS} jours`
+                  : trialEligible && trialDays > 0
+                    ? `Essayer gratuitement pendant ${trialDays} jours`
                     : "S’abonner à l’annuel"}
               </button>
 
               <p className={`mt-3 text-center ${type.price}`}>
-                Puis <span className={type.priceValue}>{YEARLY_LABEL}/an</span>
+                {trialEligible && trialDays > 0 ? (
+                  <>
+                    Puis <span className={type.priceValue}>{YEARLY_LABEL}/an</span>
+                  </>
+                ) : (
+                  <>
+                    <span className={type.priceValue}>{YEARLY_LABEL}/an</span>
+                  </>
+                )}
               </p>
 
-              {TRIAL_DAYS > 0 ? (
+              {trialEligible && trialDays > 0 ? (
                 <p className={`mt-2 flex items-center justify-center gap-1.5 ${type.reassurance}`}>
                   <CheckIcon className="size-[14px] shrink-0 text-emerald-600" />
                   <span>Annulable avant la fin de l’essai</span>

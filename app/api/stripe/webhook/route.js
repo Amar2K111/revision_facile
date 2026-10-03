@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { computePremiumUntilAfterPassPurchase } from "../../../../lib/stripePremiumPass";
+import { enforceUniqueCardForSubscription } from "../../../../lib/premiumCardFingerprint";
+import { premiumTrialUsedPatchFromSubscription } from "../../../../lib/premiumTrialEligibility";
 import {
   buildProfilePatchFromSubscription,
   buildRevokePremiumPatch,
@@ -41,7 +43,24 @@ async function syncProfileFromSubscription(admin, stripe, subscription, customer
     return;
   }
 
-  const patch = buildProfilePatchFromSubscription(subscription, customerId);
+  const resolvedCustomerId = customerId ?? resolveCustomerId(subscription.customer);
+  const cardCheck = await enforceUniqueCardForSubscription(
+    admin,
+    stripe,
+    subscription,
+    userId,
+    resolvedCustomerId,
+  );
+  if (!cardCheck.ok) {
+    await revokePremiumAccess(admin, userId);
+    console.warn("[stripe webhook] Essai refusé — carte déjà utilisée:", userId);
+    return;
+  }
+
+  const patch = {
+    ...buildProfilePatchFromSubscription(subscription, resolvedCustomerId),
+    ...premiumTrialUsedPatchFromSubscription(subscription),
+  };
   const { error } = await admin.from("profiles").update(patch).eq("id", userId);
   if (error) {
     console.error("[stripe webhook] Erreur mise à jour profil (abo):", error.message);
