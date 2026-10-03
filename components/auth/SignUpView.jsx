@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useId, useState } from "react";
 import { POST_LOGIN_DEFAULT_PATH, sanitizeNextPath } from "../../lib/authRedirects";
-import { resolvePostAuthPathClient } from "../../lib/postAuthRedirectClient";
 import { createSupabaseBrowserClient } from "../../lib/supabase/client";
 import { signInWithGoogleClient } from "../../lib/auth/signInWithGoogle";
 import { AppLoadingScreen } from "../AppLoadingScreen";
@@ -71,13 +70,9 @@ export default function SignUpView() {
       }
       if (data.session && data.user?.id) {
         setRedirecting(true);
-        const dest = await resolvePostAuthPathClient(
-          supabase,
-          data.user.id,
-          POST_LOGIN_DEFAULT_PATH,
-          { profileRetries: 3 },
+        window.location.replace(
+          `/auth/continue?next=${encodeURIComponent(POST_LOGIN_DEFAULT_PATH)}`,
         );
-        window.location.assign(dest);
         return;
       }
       setInfoMessage(

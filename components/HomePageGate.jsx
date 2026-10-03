@@ -3,44 +3,31 @@
 import { useEffect, useRef, useState } from "react";
 import { AppLoadingScreen } from "./AppLoadingScreen";
 import { POST_LOGIN_DEFAULT_PATH } from "../lib/authRedirects";
-import { resolvePostAuthPathClient } from "../lib/postAuthRedirectClient";
 import { createSupabaseBrowserClient } from "../lib/supabase/client";
 
 /**
- * Accueil : loader pendant la vérif session, puis redirection ou contenu invité.
+ * Accueil : si session détectée, passe par /auth/continue (jamais l’accueil connecté).
  */
 export function HomePageGate({ children }) {
   const [phase, setPhase] = useState("checking");
-  const redirecting = useRef(false);
+  const handled = useRef(false);
 
   useEffect(() => {
-    const hasSessionCookie =
-      typeof document !== "undefined" && /(?:^|;\s*)sb-[^=]+-auth-token=/.test(document.cookie);
-
-    if (!hasSessionCookie) {
-      setPhase("guest");
-      return undefined;
-    }
-
     const supabase = createSupabaseBrowserClient();
 
-    const redirectLoggedIn = async (session) => {
-      if (!session?.user?.id || redirecting.current) {
-        return false;
+    const sendToContinue = () => {
+      if (handled.current) {
+        return;
       }
-      redirecting.current = true;
+      handled.current = true;
       setPhase("redirecting");
-      const dest = await resolvePostAuthPathClient(
-        supabase,
-        session.user.id,
-        POST_LOGIN_DEFAULT_PATH,
-      );
-      window.location.assign(dest);
-      return true;
+      const url = `/auth/continue?next=${encodeURIComponent(POST_LOGIN_DEFAULT_PATH)}`;
+      window.location.replace(url);
     };
 
-    void supabase.auth.getSession().then(async ({ data }) => {
-      if (await redirectLoggedIn(data.session)) {
+    void supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user?.id) {
+        sendToContinue();
         return;
       }
       setPhase("guest");
@@ -49,20 +36,20 @@ export function HomePageGate({ children }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
-        void redirectLoggedIn(session);
+      if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session?.user?.id) {
+        sendToContinue();
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  if (phase === "checking") {
-    return <AppLoadingScreen message="Chargement…" />;
-  }
-
-  if (phase === "redirecting") {
-    return <AppLoadingScreen message="Redirection vers ton espace…" />;
+  if (phase === "checking" || phase === "redirecting") {
+    return (
+      <AppLoadingScreen
+        message={phase === "redirecting" ? "Redirection vers ton espace…" : "Chargement…"}
+      />
+    );
   }
 
   return children;

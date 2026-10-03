@@ -17,7 +17,8 @@ export async function GET(request) {
       } = await supabase.auth.getUser();
       const profile = user ? await fetchProfileForRouting(supabase, user.id) : null;
       const path = resolvePostAuthPath(profile, rawNext);
-      const dest = new URL(path, request.url);
+      const dest = new URL("/auth/continue", request.url);
+      dest.searchParams.set("next", path);
       return NextResponse.redirect(dest);
     }
   }
