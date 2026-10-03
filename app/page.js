@@ -52,10 +52,6 @@ export default async function HomePage() {
               Tu choisis ta spé et ton chapitre — on te génère la fiche + le quiz. Tu révises
               l’essentiel, sans te noyer dans le cours.
             </p>
-            <p className="mx-auto mt-4 max-w-md text-pretty text-sm leading-relaxed text-slate-500">
-              Pas de promesse miracle : juste une révision régulière, ciblée sur ce que tu dois
-              savoir pour juin. Aussi Brevet et BTS.
-            </p>
             <div className="mt-8 sm:mt-10">
               <HomeHeroAuth />
             </div>
