@@ -4,8 +4,12 @@ import {
   resolvePremiumTrialDays,
   resolvePremiumYearlyEur,
 } from "../../../lib/premiumPricing";
+import { SITE_NAME } from "../../../lib/site";
 import { getStripe } from "../../../lib/stripe/server";
 import { createSupabaseServerClient } from "../../../lib/supabase/server";
+
+const CHECKOUT_BRAND_NAME = SITE_NAME;
+const CHECKOUT_PRODUCT_NAME = `${SITE_NAME} Premium`;
 
 export const runtime = "nodejs";
 
@@ -30,7 +34,7 @@ function buildYearlyLineItem(priceIdYearly) {
       currency: "eur",
       unit_amount: unitAmount,
       recurring: { interval: "year" },
-      product_data: { name: "Premium — abonnement annuel" },
+      product_data: { name: `${CHECKOUT_PRODUCT_NAME} — abonnement annuel` },
     },
     quantity: 1,
   };
@@ -52,7 +56,7 @@ function buildMonthlyLineItem(priceIdMonthly) {
       currency: "eur",
       unit_amount: unitAmount,
       recurring: { interval: "month" },
-      product_data: { name: "Premium — abonnement mensuel" },
+      product_data: { name: `${CHECKOUT_PRODUCT_NAME} — abonnement mensuel` },
     },
     quantity: 1,
   };
@@ -134,6 +138,14 @@ export async function POST(request) {
     cancel_url: `${origin}/paywall?checkout=cancel`,
     client_reference_id: user.id,
     metadata: { supabase_user_id: user.id, premium_plan: plan },
+    branding_settings: {
+      display_name: CHECKOUT_BRAND_NAME,
+    },
+    custom_text: {
+      submit: {
+        message: `Abonnement ${CHECKOUT_BRAND_NAME} — annule quand tu veux depuis ton espace client.`,
+      },
+    },
     subscription_data: {
       metadata: { supabase_user_id: user.id, premium_plan: plan },
       ...(trialDays > 0 ? { trial_period_days: trialDays } : {}),

@@ -32,9 +32,15 @@ const inputClass =
 function isStepComplete(step, answers) {
   if (!step) return false;
   if (step.type === "recap") return true;
-  if (step.optional) return true;
 
   const v = answers[step.id];
+
+  if (step.optional) {
+    if (step.type === "text" && typeof v === "string" && v.trim().length > 0 && v.trim().length < 3) {
+      return false;
+    }
+    return true;
+  }
 
   if (step.id === "specializationId") {
     return isSpecializationStepComplete(answers);
@@ -62,9 +68,11 @@ function isStepComplete(step, answers) {
 
 /**
  * @param {import("../../data/onboardingQuestions").OnboardingStep | undefined} step
+ * @param {Record<string, unknown>} answers
  */
-function stepValidationMessage(step) {
+function stepValidationMessage(step, answers) {
   if (!step) return "Réponds à la question pour continuer.";
+  if (step.optional) return "Tu peux passer cette question ou répondre pour continuer.";
   if (step.id === "specializationId") {
     return "Sélectionne ta filière ou ta spécialité pour continuer.";
   }
@@ -77,6 +85,25 @@ function stepValidationMessage(step) {
   return "Réponds à la question pour continuer.";
 }
 
+/** @param {unknown} value */
+function normalizeMultiAnswer(value) {
+  if (Array.isArray(value)) {
+    return value.filter((item) => typeof item === "string" && item.length > 0);
+  }
+  if (typeof value === "string" && value.length > 0) {
+    return [value];
+  }
+  return [];
+}
+
+/** @param {Record<string, unknown>} draft */
+function normalizeDraft(draft) {
+  const next = { ...draft };
+  next.weakSubjects = normalizeMultiAnswer(next.weakSubjects);
+  next.mostHelpful = normalizeMultiAnswer(next.mostHelpful);
+  return next;
+}
+
 /**
  * @param {Record<string, unknown>} initial
  */
@@ -87,7 +114,7 @@ function loadDraft(initial) {
     if (!raw) return initial;
     const parsed = JSON.parse(raw);
     if (parsed && typeof parsed === "object") {
-      return { ...initial, ...parsed };
+      return normalizeDraft({ ...initial, ...parsed });
     }
   } catch {
     /* ignore */
@@ -143,11 +170,37 @@ export default function OnboardingWizard() {
     setError(null);
   }, []);
 
+  const toggleMultiAnswer = useCallback((id, value) => {
+    setAnswers((prev) => {
+      const current = normalizeMultiAnswer(prev[id]);
+      const nextValues = current.includes(value)
+        ? current.filter((item) => item !== value)
+        : [...current, value];
+      return { ...prev, [id]: nextValues };
+    });
+    setError(null);
+  }, []);
+
   const canContinue = useMemo(() => isStepComplete(step, answers), [step, answers]);
+
+  const skipStep = useCallback(() => {
+    if (!step || step.type === "recap") return;
+    if (step.type === "text") {
+      setAnswer(step.id, "");
+    } else if (step.type === "multi") {
+      setAnswer(step.id, []);
+    } else if (step.type === "single") {
+      setAnswer(step.id, "");
+    } else if (step.type === "date") {
+      /* date préremplie — on garde la valeur actuelle */
+    }
+    setError(null);
+    setStepIndex((i) => Math.min(i + 1, visibleSteps.length - 1));
+  }, [step, setAnswer, visibleSteps.length]);
 
   const goNext = useCallback(() => {
     if (!canContinue) {
-      setError(stepValidationMessage(step));
+      setError(stepValidationMessage(step, answers));
       return;
     }
     if (step?.type === "recap") {
@@ -155,7 +208,7 @@ export default function OnboardingWizard() {
     }
     setError(null);
     setStepIndex((i) => Math.min(i + 1, visibleSteps.length - 1));
-  }, [canContinue, step, visibleSteps.length]);
+  }, [answers, canContinue, step, visibleSteps.length]);
 
   const goBack = useCallback(() => {
     setError(null);
@@ -197,7 +250,7 @@ export default function OnboardingWizard() {
   const classId = typeof answers.classId === "string" ? answers.classId : "";
   const specializationId =
     typeof answers.specializationId === "string" ? answers.specializationId : "";
-  const weakSubjectsSelected = Array.isArray(answers.weakSubjects) ? answers.weakSubjects : [];
+  const weakSubjectsSelected = normalizeMultiAnswer(answers.weakSubjects);
   const examName = examLabelFromClassId(classId);
   const days = daysUntilExam(answers);
   const firstName =
@@ -288,7 +341,7 @@ export default function OnboardingWizard() {
                 <OnboardingMultiChoiceButtons
                   options={weakOptions}
                   selected={weakSubjectsSelected}
-                  onChange={(values) => setAnswer("weakSubjects", values)}
+                  onToggle={(value) => toggleMultiAnswer("weakSubjects", value)}
                 />
               )}
             </>
@@ -297,8 +350,8 @@ export default function OnboardingWizard() {
           {step.type === "multi" && step.id !== "weakSubjects" && step.options && (
             <OnboardingMultiChoiceButtons
               options={step.options}
-              selected={Array.isArray(answers[step.id]) ? answers[step.id] : []}
-              onChange={(values) => setAnswer(step.id, values)}
+              selected={normalizeMultiAnswer(answers[step.id])}
+              onToggle={(value) => toggleMultiAnswer(step.id, value)}
             />
           )}
 
@@ -368,24 +421,37 @@ export default function OnboardingWizard() {
             <span className="hidden sm:block sm:flex-1" />
           )}
 
-          {step.type === "recap" ? (
-            <button
-              type="button"
-              onClick={finish}
-              disabled={submitting}
-              className="order-1 mb-3 inline-flex min-h-12 w-full items-center justify-center rounded-[10px] bg-gradient-to-br from-indigo-600 to-blue-700 px-8 text-base font-medium text-white shadow-lg transition hover:shadow-xl active:opacity-90 disabled:opacity-60 sm:order-2 sm:mb-0 sm:ml-auto sm:w-auto"
-            >
-              {submitting ? "Enregistrement…" : "C’est parti"}
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={goNext}
-              className="order-1 mb-3 inline-flex min-h-12 w-full items-center justify-center rounded-[10px] bg-gradient-to-br from-indigo-600 to-blue-700 px-8 text-base font-medium text-white shadow-lg transition hover:shadow-xl active:opacity-90 sm:order-2 sm:mb-0 sm:ml-auto sm:w-auto"
-            >
-              Continuer
-            </button>
-          )}
+          <div className="order-1 flex w-full flex-col gap-2 sm:order-2 sm:ml-auto sm:w-auto">
+            {step.type !== "recap" && step.optional ? (
+              <button
+                type="button"
+                onClick={skipStep}
+                disabled={submitting}
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-[10px] px-4 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-800 active:bg-slate-100 sm:w-auto"
+              >
+                Passer cette question
+              </button>
+            ) : null}
+
+            {step.type === "recap" ? (
+              <button
+                type="button"
+                onClick={finish}
+                disabled={submitting}
+                className="inline-flex min-h-12 w-full items-center justify-center rounded-[10px] bg-gradient-to-br from-indigo-600 to-blue-700 px-8 text-base font-medium text-white shadow-lg transition hover:shadow-xl active:opacity-90 disabled:opacity-60 sm:w-auto"
+              >
+                {submitting ? "Enregistrement…" : "C’est parti"}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={goNext}
+                className="inline-flex min-h-12 w-full items-center justify-center rounded-[10px] bg-gradient-to-br from-indigo-600 to-blue-700 px-8 text-base font-medium text-white shadow-lg transition hover:shadow-xl active:opacity-90 sm:w-auto"
+              >
+                Continuer
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

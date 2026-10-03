@@ -161,7 +161,8 @@ export const ONBOARDING_STEPS = [
     id: "successMeaning",
     type: "text",
     title: "Si tu réussis ton examen, qu’est-ce que ça changerait pour toi ?",
-    subtitle: "Une phrase suffit — c’est pour toi.",
+    subtitle: "Une phrase suffit — c’est pour toi. Tu peux aussi passer cette question.",
+    optional: true,
   },
   {
     id: "commitment",
