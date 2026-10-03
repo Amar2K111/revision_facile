@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { computePremiumUntilAfterPassPurchase } from "../../../../lib/stripePremiumPass";
 import {
   buildProfilePatchFromSubscription,
+  buildRevokePremiumPatch,
   subscriptionGrantsPremium,
 } from "../../../../lib/stripePremiumSubscription";
 import { createSupabaseAdminClient } from "../../../../lib/supabase/admin";
@@ -47,16 +48,11 @@ async function syncProfileFromSubscription(admin, stripe, subscription, customer
   }
 }
 
-async function revokePremiumIfExpired(admin, userId) {
-  const { data: row } = await admin.from("profiles").select("premium_until").eq("id", userId).maybeSingle();
-  const untilRaw = row?.premium_until;
-  if (untilRaw != null && String(untilRaw).trim() !== "") {
-    const t = new Date(String(untilRaw)).getTime();
-    if (Number.isFinite(t) && t > Date.now()) {
-      return;
-    }
-  }
-  const { error } = await admin.from("profiles").update({ is_premium: false }).eq("id", userId);
+async function revokePremiumAccess(admin, userId) {
+  const { error } = await admin
+    .from("profiles")
+    .update(buildRevokePremiumPatch())
+    .eq("id", userId);
   if (error) {
     console.error("[stripe webhook] Révocation premium:", error.message);
   }
@@ -146,7 +142,7 @@ export async function POST(request) {
         if (subscriptionGrantsPremium(subscription)) {
           await syncProfileFromSubscription(admin, stripe, subscription, null, userId);
         } else {
-          await revokePremiumIfExpired(admin, userId);
+          await revokePremiumAccess(admin, userId);
         }
       }
       break;
@@ -155,7 +151,7 @@ export async function POST(request) {
       const subscription = event.data.object;
       const userId = subscription.metadata?.supabase_user_id;
       if (userId && typeof userId === "string" && admin) {
-        await revokePremiumIfExpired(admin, userId);
+        await revokePremiumAccess(admin, userId);
       }
       break;
     }

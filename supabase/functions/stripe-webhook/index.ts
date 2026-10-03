@@ -85,16 +85,15 @@ async function syncProfileFromSubscription(
   }
 }
 
-async function revokePremiumIfExpired(admin: ReturnType<typeof createClient>, userId: string) {
-  const { data: row } = await admin.from("profiles").select("premium_until").eq("id", userId).maybeSingle();
-  const untilRaw = row?.premium_until;
-  if (untilRaw != null && String(untilRaw).trim() !== "") {
-    const t = new Date(String(untilRaw)).getTime();
-    if (Number.isFinite(t) && t > Date.now()) {
-      return;
-    }
-  }
-  const { error } = await admin.from("profiles").update({ is_premium: false }).eq("id", userId);
+function buildRevokePremiumPatch() {
+  return {
+    is_premium: false,
+    premium_until: new Date().toISOString(),
+  };
+}
+
+async function revokePremiumAccess(admin: ReturnType<typeof createClient>, userId: string) {
+  const { error } = await admin.from("profiles").update(buildRevokePremiumPatch()).eq("id", userId);
   if (error) {
     console.error("[stripe-webhook] Révocation premium:", error.message);
   }
@@ -212,7 +211,7 @@ Deno.serve(async (req) => {
         if (subscriptionGrantsPremium(subscription)) {
           await syncProfileFromSubscription(admin, subscription, null, userId);
         } else {
-          await revokePremiumIfExpired(admin, userId);
+          await revokePremiumAccess(admin, userId);
         }
       }
       break;
@@ -221,7 +220,7 @@ Deno.serve(async (req) => {
       const subscription = event.data.object as Stripe.Subscription;
       const userId = subscription.metadata?.supabase_user_id;
       if (userId && typeof userId === "string") {
-        await revokePremiumIfExpired(admin, userId);
+        await revokePremiumAccess(admin, userId);
       }
       break;
     }

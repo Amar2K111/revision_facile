@@ -14,8 +14,10 @@ $vars = @{
   NEXT_PUBLIC_PREMIUM_YEARLY_EUR  = "29.99"
   NEXT_PUBLIC_PREMIUM_MONTHLY_EUR = "4.99"
   NEXT_PUBLIC_PREMIUM_TRIAL_DAYS  = "3"
-  STRIPE_WEBHOOK_SECRET           = "whsec_3B8gsoS4CpxHwUYmFGcryaax1KyT1Dqy"
 }
+
+# STRIPE_WEBHOOK_SECRET : ne jamais versionner — ajoute-le à la main dans Vercel
+# (Stripe Dashboard → Webhooks → signing secret du endpoint prod).
 
 Push-Location $root
 try {

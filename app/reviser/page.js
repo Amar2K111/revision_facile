@@ -43,11 +43,13 @@ export default function ReviserPage() {
     if (!user) {
       setLoggedIn(false);
       setIsPremium(false);
-      return;
+      return false;
     }
     setLoggedIn(true);
     const { data } = await supabase.from("profiles").select("is_premium, premium_until").eq("id", user.id).maybeSingle();
-    setIsPremium(profileHasActivePremium(data));
+    const active = profileHasActivePremium(data);
+    setIsPremium(active);
+    return active;
   }, []);
 
   useEffect(() => {
@@ -64,7 +66,16 @@ export default function ReviserPage() {
     }
     let cancelled = false;
     void (async () => {
-      await loadPremium();
+      // Le webhook Stripe peut mettre 1–3 s à activer le Premium dans Supabase.
+      for (let attempt = 0; attempt < 12 && !cancelled; attempt += 1) {
+        const active = await loadPremium();
+        if (active) {
+          break;
+        }
+        await new Promise((resolve) => {
+          setTimeout(resolve, 500);
+        });
+      }
       if (!cancelled) {
         window.history.replaceState({}, "", "/reviser");
       }
