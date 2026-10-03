@@ -68,21 +68,21 @@ export default function FicheClient() {
   const hasQuiz = quizCount > 0;
 
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-indigo-50/80 via-slate-50 to-slate-50">
-      <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
-        <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
+    <div className="min-h-dvh bg-gradient-to-b from-indigo-50/80 via-slate-50 to-slate-50 pt-safe pb-safe">
+      <div className={`mx-auto max-w-3xl px-4 py-5 sm:px-6 sm:py-10 lg:px-8 ${hasQuiz ? "pb-28 sm:pb-10" : ""}`}>
+        <div className="flex items-center justify-between gap-2 print:hidden">
           <Link
             href="/reviser"
-            className="text-sm font-semibold text-indigo-700 hover:text-indigo-600"
+            className="inline-flex min-h-11 items-center text-sm font-semibold text-indigo-700 hover:text-indigo-600 active:text-indigo-800"
           >
             ← Nouvelle fiche
           </Link>
-          <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <AuthUserAvatar />
             <button
               type="button"
               onClick={() => window.print()}
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+              className="inline-flex min-h-11 items-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:bg-slate-50 active:bg-slate-100"
             >
               Imprimer
             </button>
@@ -95,9 +95,11 @@ export default function FicheClient() {
           <div className="p-4 sm:p-6 print:border-0 print:bg-transparent print:p-0">
             {meta ? (
               <p className="mb-4 text-center text-sm text-slate-600 print:text-slate-500">
-                <span className="font-medium text-slate-800">{meta.topicLabel}</span>
-                {" · "}
-                {meta.subjectName} — {meta.classLabel}
+                <span className="block font-medium text-slate-800 sm:inline">{meta.topicLabel}</span>
+                <span className="hidden sm:inline"> · </span>
+                <span className="mt-0.5 block text-xs text-slate-500 sm:mt-0 sm:inline sm:text-sm sm:text-slate-600">
+                  {meta.subjectName} — {meta.classLabel}
+                </span>
               </p>
             ) : null}
 

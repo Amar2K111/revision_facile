@@ -4,6 +4,9 @@ import {
   getSubjectsForClass,
   TERMINALE_SPECIALIZATION_GROUPS,
 } from "./curriculum";
+import { DEFAULT_EXAM_DATES, examLabelFromClassId } from "../lib/schoolYear";
+
+export { examLabelFromClassId };
 
 /** @typedef {'text' | 'single' | 'multi' | 'scale' | 'date' | 'recap'} OnboardingStepType */
 
@@ -102,7 +105,7 @@ export const ONBOARDING_STEPS = [
     id: "examDate",
     type: "date",
     title: "Quand a lieu ton examen ?",
-    subtitle: "Une date approximative suffit.",
+    subtitle: "Session 2027 — une date approximative suffit (préremplie selon ton diplôme).",
   },
   {
     id: "weakSubjects",
@@ -293,12 +296,11 @@ export function areWeakSubjectsValid(answers, weakSubjects) {
 }
 
 /**
+ * Date d'examen indicative selon le diplôme (session 2027).
  * @param {string} classId
  */
-export function examLabelFromClassId(classId) {
-  if (classId === "term") return "Bac";
-  if (classId === "bts2") return "BTS";
-  return "Brevet";
+export function defaultExamDateForClass(classId) {
+  return DEFAULT_EXAM_DATES[classId] ?? "";
 }
 
 /**

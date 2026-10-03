@@ -1,4 +1,4 @@
-# Théorème de Pythagore — Brevet Maths
+# Théorème de Pythagore — Brevet 2027 · Maths
 
 ## L'essentiel
 

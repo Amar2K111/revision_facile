@@ -26,7 +26,7 @@ const PAYWALL_CHECKLIST = [
     detail: "ta classe, ta matière et la notion que tu choisis",
   },
   {
-    title: "Brevet, Bac et BTS",
+    title: "Brevet, Bac et BTS 2027",
     detail: "contenu calibré sur ton niveau et le programme national",
   },
   {
@@ -119,7 +119,7 @@ function PremiumOfferCard({
             type="button"
             onClick={() => void onCheckout(plan)}
             disabled={busy}
-            className="mt-2.5 flex w-full min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-600/25 transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-65"
+            className="mt-2.5 flex min-h-12 w-full items-center justify-center rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white shadow-md shadow-indigo-600/25 transition hover:bg-indigo-500 active:bg-indigo-600 disabled:cursor-not-allowed disabled:opacity-65"
           >
             {thisBusy ? "Redirection…" : "Continuer"}
           </button>
@@ -161,12 +161,13 @@ export default function PaywallPage() {
     <div className="relative min-h-dvh bg-gradient-to-b from-indigo-50/80 via-slate-50 to-slate-50">
       <Link
         href="/reviser"
-        className="fixed left-3 top-3 z-20 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200/80 backdrop-blur-sm transition hover:bg-white/90 hover:text-slate-900 sm:left-4 sm:top-4"
+        className="fixed left-3 z-20 inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200/80 backdrop-blur-sm transition hover:bg-white/90 hover:text-slate-900 active:bg-white sm:left-4"
+        style={{ top: "max(0.75rem, env(safe-area-inset-top, 0px))" }}
       >
         ← Retour
       </Link>
 
-      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-4 pb-10 pt-16 sm:max-w-lg sm:px-6">
+      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-start px-4 pb-safe pt-20 sm:max-w-lg sm:justify-center sm:px-6 sm:pt-16">
         <div className="grid grid-cols-1 gap-4 sm:gap-5 sm:items-stretch">
           <PremiumOfferCard
             subtitle="Génère autant de fiches que tu veux, révise avec des quiz interactifs et débloque tout Premium pour tes examens."

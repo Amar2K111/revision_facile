@@ -1,5 +1,5 @@
 const choiceClass =
-  "w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-left text-sm font-medium text-slate-800 transition hover:border-indigo-300 hover:bg-indigo-50/50 focus:outline-none focus:ring-2 focus:ring-indigo-500";
+  "flex min-h-12 w-full items-center rounded-xl border border-slate-200 bg-white px-4 text-left text-sm font-medium text-slate-800 transition hover:border-indigo-300 hover:bg-indigo-50/50 active:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500";
 
 const choiceSelectedClass =
   "border-indigo-600 bg-indigo-50 ring-2 ring-indigo-500/30";

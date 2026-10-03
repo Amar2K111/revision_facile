@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { sanitizeNextPath } from "../../lib/authRedirects";
 import {
   daysUntilExam,
+  defaultExamDateForClass,
   examLabelFromClassId,
   getSpecializationGroups,
   getVisibleOnboardingSteps,
@@ -129,6 +130,10 @@ export default function OnboardingWizard() {
       if (id === "classId") {
         delete next.specializationId;
         delete next.weakSubjects;
+        const defaultDate = defaultExamDateForClass(String(value));
+        if (defaultDate) {
+          next.examDate = defaultDate;
+        }
       }
       if (id === "specializationId") {
         delete next.weakSubjects;
@@ -349,13 +354,13 @@ export default function OnboardingWizard() {
           </p>
         ) : null}
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-between">
+        <div className="sticky bottom-0 -mx-5 mt-8 border-t border-slate-100 bg-white/95 px-5 py-4 pb-[max(env(safe-area-inset-bottom,0px),1rem)] backdrop-blur-sm sm:static sm:mx-0 sm:flex sm:flex-row sm:justify-between sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
           {stepIndex > 0 ? (
             <button
               type="button"
               onClick={goBack}
               disabled={submitting}
-              className="order-2 rounded-[10px] border border-slate-200 px-6 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 sm:order-1"
+              className="order-2 inline-flex min-h-12 w-full items-center justify-center rounded-[10px] border border-slate-200 px-6 text-sm font-medium text-slate-700 transition hover:bg-slate-50 active:bg-slate-100 sm:order-1 sm:w-auto"
             >
               Retour
             </button>
@@ -368,7 +373,7 @@ export default function OnboardingWizard() {
               type="button"
               onClick={finish}
               disabled={submitting}
-              className="order-1 rounded-[10px] bg-gradient-to-br from-indigo-600 to-blue-700 px-8 py-3.5 text-base font-medium text-white shadow-lg transition hover:shadow-xl disabled:opacity-60 sm:order-2 sm:ml-auto"
+              className="order-1 mb-3 inline-flex min-h-12 w-full items-center justify-center rounded-[10px] bg-gradient-to-br from-indigo-600 to-blue-700 px-8 text-base font-medium text-white shadow-lg transition hover:shadow-xl active:opacity-90 disabled:opacity-60 sm:order-2 sm:mb-0 sm:ml-auto sm:w-auto"
             >
               {submitting ? "Enregistrement…" : "C’est parti"}
             </button>
@@ -376,7 +381,7 @@ export default function OnboardingWizard() {
             <button
               type="button"
               onClick={goNext}
-              className="order-1 rounded-[10px] bg-gradient-to-br from-indigo-600 to-blue-700 px-8 py-3.5 text-base font-medium text-white shadow-lg transition hover:shadow-xl sm:order-2 sm:ml-auto"
+              className="order-1 mb-3 inline-flex min-h-12 w-full items-center justify-center rounded-[10px] bg-gradient-to-br from-indigo-600 to-blue-700 px-8 text-base font-medium text-white shadow-lg transition hover:shadow-xl active:opacity-90 sm:order-2 sm:mb-0 sm:ml-auto sm:w-auto"
             >
               Continuer
             </button>

@@ -1,6 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/JsonLd";
-import { SiteFooter } from "@/components/SiteFooter";
+import { ConditionalSiteFooter } from "@/components/ConditionalSiteFooter";
 import { DEFAULT_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -29,20 +29,20 @@ export const metadata = {
     locale: "fr_FR",
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: "Fiches de révision Brevet, Bac et BTS | Révision facile",
+    title: "Fiches de révision Brevet 2027, Bac et BTS | Révision facile",
     description: DEFAULT_DESCRIPTION,
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Révision facile — fiches de révision Brevet, Bac et BTS",
+        alt: "Révision facile — fiches de révision Brevet 2027, Bac et BTS",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Fiches de révision Brevet, Bac et BTS | Révision facile",
+    title: "Fiches de révision Brevet 2027, Bac et BTS | Révision facile",
     description: DEFAULT_DESCRIPTION,
     images: ["/og-image.png"],
   },
@@ -50,6 +50,13 @@ export const metadata = {
     index: true,
     follow: true,
   },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#4f46e5",
 };
 
 export default function RootLayout({ children }) {
@@ -64,7 +71,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className="flex min-h-dvh flex-col bg-[var(--background)] text-[var(--foreground)]">
         <div className="flex flex-1 flex-col">{children}</div>
-        <SiteFooter />
+        <ConditionalSiteFooter />
       </body>
     </html>
   );

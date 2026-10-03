@@ -1,5 +1,12 @@
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import SignInView from "../../../components/auth/SignInView";
+import {
+  POST_LOGIN_DEFAULT_PATH,
+  resolvePostAuthPath,
+} from "../../../lib/authRedirects";
+import { fetchProfileForRouting } from "../../../lib/fetchProfileForRouting";
+import { createSupabaseServerClient } from "../../../lib/supabase/server";
 
 function SignInFallback() {
   return (
@@ -10,7 +17,19 @@ function SignInFallback() {
   );
 }
 
-export default function SignInPage() {
+export default async function SignInPage({ searchParams }) {
+  const sp = (await Promise.resolve(searchParams)) ?? {};
+  const rawNext = typeof sp.next === "string" ? sp.next : "";
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    const profile = await fetchProfileForRouting(supabase, user.id);
+    redirect(resolvePostAuthPath(profile, rawNext || POST_LOGIN_DEFAULT_PATH));
+  }
+
   return (
     <Suspense fallback={<SignInFallback />}>
       <SignInView />

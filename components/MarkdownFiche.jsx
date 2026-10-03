@@ -9,7 +9,7 @@ import { normalizeLatexDelimiters } from "../lib/normalizeLatexDelimiters";
 import "katex/dist/katex.min.css";
 
 const articleBaseClass =
-  "fiche-markdown rounded-2xl border border-white/80 bg-white/90 px-5 py-8 shadow-lg shadow-slate-200/50 sm:px-10 sm:py-10 print:shadow-none [&_.katex]:text-[1em]";
+  "fiche-markdown rounded-2xl border border-white/80 bg-white/90 px-4 py-6 shadow-lg shadow-slate-200/50 sm:px-10 sm:py-10 print:shadow-none [&_.katex]:text-[1em] [&_.katex-display]:max-w-full [&_.katex-display]:overflow-x-auto";
 
 export const ficheMdComponents = {
   h1: (props) => (

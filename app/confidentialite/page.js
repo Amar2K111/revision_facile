@@ -19,7 +19,7 @@ export default function ConfidentialitePage() {
           Politique de confidentialité
         </h1>
         <p className="mt-4 text-sm text-slate-500">
-          Dernière mise à jour : mai 2026.
+          Dernière mise à jour : octobre 2026.
         </p>
 
         <div className="mt-8 space-y-8 text-sm leading-relaxed text-slate-600">

@@ -4,14 +4,14 @@ import Link from "next/link";
 import { FicheMarkdownSection } from "@/components/MarkdownFiche";
 
 export const metadata = {
-  title: "Fiche de révision Théorème de Pythagore – Maths Brevet",
+  title: "Fiche de révision Théorème de Pythagore – Maths Brevet 2027",
   description:
-    "Fiche de révision gratuite sur le théorème de Pythagore pour le Brevet des collèges : formules, exemples, astuces et pièges à éviter.",
+    "Fiche de révision gratuite sur le théorème de Pythagore pour le Brevet 2027 (DNB) : formules, exemples, astuces et pièges à éviter.",
   alternates: { canonical: "/exemple/theoreme-de-pythagore" },
   openGraph: {
-    title: "Fiche Théorème de Pythagore – Maths Brevet | Révision facile",
+    title: "Fiche Théorème de Pythagore – Maths Brevet 2027 | Révision facile",
     description:
-      "Exemple de fiche de révision conforme au programme : théorème de Pythagore pour le Brevet.",
+      "Exemple de fiche de révision conforme au programme 2026-2027 : théorème de Pythagore pour le Brevet 2027.",
   },
 };
 
@@ -41,7 +41,7 @@ export default function ExemplePythagorePage() {
 
       <main className="mx-auto max-w-3xl px-5 py-10 sm:px-8 sm:py-14">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-700">
-          Exemple gratuit · Brevet · Maths
+          Exemple gratuit · Brevet 2027 · Maths
         </p>
         <h1 className="mt-3 font-[family-name:var(--font-geist-sans)] text-2xl font-semibold text-slate-900 sm:text-3xl">
           Théorème de Pythagore

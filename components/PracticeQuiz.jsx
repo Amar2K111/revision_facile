@@ -119,7 +119,7 @@ export default function PracticeQuiz({ practiceQuiz = [] }) {
               <button
                 type="button"
                 onClick={start}
-                className="inline-flex min-h-[2.75rem] w-full shrink-0 items-center justify-center rounded-xl bg-indigo-600 px-5 py-3 text-[15px] font-semibold text-white shadow-md shadow-indigo-600/22 transition hover:bg-indigo-500 active:bg-indigo-600 sm:w-auto sm:py-2.5 sm:text-sm"
+                className="inline-flex min-h-12 w-full shrink-0 items-center justify-center rounded-xl bg-indigo-600 px-5 text-[15px] font-semibold text-white shadow-md shadow-indigo-600/22 transition hover:bg-indigo-500 active:bg-indigo-600 sm:w-auto sm:text-sm"
               >
                 Commencer
               </button>
@@ -170,7 +170,7 @@ export default function PracticeQuiz({ practiceQuiz = [] }) {
                       const isSelected = picked && sel === ci;
 
                       let btnCls =
-                        "flex min-h-[2.875rem] w-full items-center rounded-xl border px-4 py-3 text-left text-[14px] font-medium transition sm:text-sm ";
+                        "flex min-h-12 w-full items-center rounded-xl border px-4 py-3 text-left text-[14px] font-medium transition sm:text-sm ";
                       if (!picked) {
                         btnCls +=
                           "border-slate-200 bg-white text-slate-800 shadow-sm hover:border-indigo-300 hover:bg-indigo-50/30 active:bg-indigo-50/60";

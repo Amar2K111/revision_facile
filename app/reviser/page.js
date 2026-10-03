@@ -230,43 +230,41 @@ export default function ReviserPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-indigo-50/80 via-slate-50 to-slate-50">
-      <div className="mx-auto flex w-full max-w-xl flex-col px-5 py-12 sm:px-8 sm:py-16">
+    <div className="min-h-dvh bg-gradient-to-b from-indigo-50/80 via-slate-50 to-slate-50 pt-safe pb-safe">
+      <div className="mx-auto flex w-full max-w-xl flex-col px-4 py-8 sm:px-8 sm:py-16">
         <header>
-          <div className="mb-8 print:hidden">
-            <div className="-mx-5 w-[calc(100%+2.5rem)] max-w-none pl-[max(0px,env(safe-area-inset-left,0px))] pr-0 sm:-mx-8 sm:w-[calc(100%+4rem)]">
-              <div className="grid min-h-[4.25rem] grid-cols-[2.5rem_minmax(0,1fr)_max-content] items-center gap-x-0 sm:min-h-[4.5rem] sm:grid-cols-[2.75rem_minmax(0,1fr)_max-content]">
-                <div className="flex justify-start pl-1 sm:pl-0.5">
-                  {loggedIn === false ? (
-                    <Link
-                      href="/"
-                      aria-label="Retour à l’accueil"
-                      className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg font-semibold leading-none text-indigo-700 transition hover:bg-indigo-50 hover:text-indigo-600 sm:h-11 sm:w-11 sm:text-xl"
-                    >
-                      <span aria-hidden>←</span>
-                    </Link>
-                  ) : (
-                    <div className="h-10 w-10 shrink-0 sm:h-11 sm:w-11" aria-hidden />
-                  )}
-                </div>
+          <div className="mb-6 print:hidden sm:mb-8">
+            <div className="grid min-h-14 grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] items-center gap-x-2 px-safe sm:min-h-[4.5rem]">
+              <div className="flex justify-start">
+                {loggedIn === false ? (
+                  <Link
+                    href="/"
+                    aria-label="Retour à l’accueil"
+                    className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-xl font-semibold leading-none text-indigo-700 transition hover:bg-indigo-50 hover:text-indigo-600 active:bg-indigo-100"
+                  >
+                    <span aria-hidden>←</span>
+                  </Link>
+                ) : (
+                  <div className="h-11 w-11 shrink-0" aria-hidden />
+                )}
+              </div>
 
-                <div className="pointer-events-none flex min-w-0 flex-col items-center justify-center px-1 text-center sm:px-2">
-                  <h1 className="min-w-0 text-center font-[family-name:var(--font-geist-sans)] text-[0.95rem] font-semibold leading-snug tracking-tight text-slate-900 min-[400px]:whitespace-nowrap sm:text-xl md:text-2xl md:leading-tight lg:text-3xl xl:text-4xl">
-                    RevisionFacile.com
-                  </h1>
-                  <p className="mt-2 text-center text-xs font-semibold uppercase tracking-widest text-indigo-600/90 sm:mt-2.5">
-                    Fiche de revision + quiz
-                  </p>
-                </div>
+              <div className="pointer-events-none flex min-w-0 flex-col items-center justify-center text-center">
+                <h1 className="min-w-0 text-balance font-[family-name:var(--font-geist-sans)] text-base font-semibold leading-snug tracking-tight text-slate-900 sm:text-xl md:text-2xl">
+                  RevisionFacile.com
+                </h1>
+                <p className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-indigo-600/90 sm:mt-2 sm:text-xs">
+                  Fiche de révision + quiz
+                </p>
+              </div>
 
-                <div className="flex justify-end justify-self-end pr-3 sm:pr-[env(safe-area-inset-right,0px)]">
-                  <AuthUserAvatar />
-                </div>
+              <div className="flex justify-end">
+                <AuthUserAvatar />
               </div>
             </div>
           </div>
 
-          <div className="mt-2 space-y-5 rounded-2xl border border-white/60 bg-white/70 p-6 shadow-[0_20px_60px_-24px_rgba(15,23,42,0.35)] backdrop-blur-md sm:mt-0">
+          <div className="space-y-5 rounded-2xl border border-white/60 bg-white/70 p-4 shadow-[0_20px_60px_-24px_rgba(15,23,42,0.35)] backdrop-blur-md sm:p-6">
             <SelectField
               id="class"
               label="Classe"
@@ -387,7 +385,7 @@ export default function ReviserPage() {
                   onClick={handleGenerate}
                   disabled={!canGenerate || loading || isPremium === null}
                   aria-busy={loading}
-                  className={`inline-flex w-full items-center justify-center gap-2.5 rounded-xl px-5 py-3.5 text-sm font-semibold text-white shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 motion-safe:transition-colors ${
+                  className={`inline-flex min-h-[3.25rem] w-full items-center justify-center gap-2.5 rounded-xl px-5 text-sm font-semibold text-white shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 motion-safe:transition-colors active:scale-[0.99] ${
                     loading
                       ? "reviser-btn-loading-motion cursor-wait bg-indigo-600 shadow-indigo-600/30"
                       : !canGenerate || isPremium === null

@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getMath3eDirectiveByTopic } from "../../../data/math3emeExpertDirectives";
+import { examLabelFromClassId, examSessionHint } from "../../../lib/schoolYear";
 import { createSupabaseServerClient } from "../../../lib/supabase/server";
 import {
   buildGeminiUserMessage,
@@ -39,12 +40,6 @@ async function generateModelText(model, userText, generationConfig) {
       : { contents: [{ role: "user", parts: [{ text: userText }] }] };
   const result = await model.generateContent(payload);
   return result.response.text()?.trim() ?? "";
-}
-
-function examLabelFromClassId(classId) {
-  if (classId === "term") return "Bac";
-  if (classId === "bts2") return "BTS";
-  return "Brevet";
 }
 
 function resolveExpertDeepening(classId, subjectId, topicLabel) {
@@ -171,6 +166,7 @@ export async function POST(request) {
     subjectName,
     topicLabel,
     examLabel,
+    examSessionHint: examSessionHint(classId),
     expertDirective: directive,
   });
 

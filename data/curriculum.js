@@ -1,21 +1,21 @@
-/** Programme 3ème (Brevet) — matières et sujets officiels */
+/** Programme 3ème (Brevet) — matières et sujets officiels (année scolaire 2026-2027). */
 
 export const CLASSES = [
   {
     id: "3e",
-    label: "3ème — Brevet",
+    label: "3ème — Brevet 2027",
     short: "3ème",
     available: true,
   },
   {
     id: "term",
-    label: "Terminale — Bac",
+    label: "Terminale — Bac 2027",
     short: "Terminale",
     available: true,
   },
   {
     id: "bts2",
-    label: "BTS — 2ᵉ année",
+    label: "BTS — 2ᵉ année (session 2027)",
     short: "BTS 2",
     available: true,
   },
@@ -622,6 +622,65 @@ export const SUBJECTS_BY_BTS = {
       ],
     },
   ],
+  "bts-sp3s": [
+    {
+      id: "bts-sp3s-pse",
+      name: "Prévention, santé, environnement (PSE)",
+      color: "svt",
+      topics: [
+        "Déterminants de santé et inégalités",
+        "Risques professionnels et prévention",
+        "Environnement et développement durable",
+        "Éducation à la santé",
+      ],
+    },
+    {
+      id: "bts-sp3s-dg",
+      name: "Droit et gestion",
+      color: "hist",
+      topics: [
+        "Droit du travail (contrat, rupture)",
+        "Organisation du système de santé",
+        "Financement de la protection sociale",
+        "Gestion budgétaire d'un établissement",
+      ],
+    },
+    {
+      id: "bts-sp3s-int",
+      name: "Intervention sanitaire et sociale",
+      color: "geo",
+      topics: [
+        "Analyse de la demande et du public",
+        "Projet d'intervention individualisé",
+        "Travail en équipe pluriprofessionnelle",
+        "Communication avec les usagers",
+      ],
+    },
+  ],
+  "bts-cejm": [
+    {
+      id: "bts-cejm-com",
+      name: "Communication et événementiel",
+      color: "geo",
+      topics: [
+        "Stratégie de communication",
+        "Organisation d'événements",
+        "Relations presse et médias",
+        "Communication digitale",
+      ],
+    },
+    {
+      id: "bts-cejm-prod",
+      name: "Production éditoriale",
+      color: "fr",
+      topics: [
+        "Écriture journalistique",
+        "Mise en page et chaîne graphique",
+        "Veille médias et sources",
+        "Droit de la presse et déontologie",
+      ],
+    },
+  ],
 };
 
 export const BTS_SPECIALIZATION_GROUPS = [
@@ -635,6 +694,14 @@ export const BTS_SPECIALIZATION_GROUPS = [
       { id: "bts-comm", label: "BTS Communication" },
       { id: "bts-gpme", label: "BTS GPME (Gestion de la PME)" },
       { id: "bts-ci", label: "BTS Commerce international (CI)" },
+      {
+        id: "bts-sp3s",
+        label: "BTS SP3S (Services et prestations des secteurs sanitaire et social)",
+      },
+      {
+        id: "bts-cejm",
+        label: "BTS CEJM (Communication et événementiel des journaux et magazines)",
+      },
     ],
   },
 ];

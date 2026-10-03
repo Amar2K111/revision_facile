@@ -118,7 +118,7 @@ export default function PagedMarkdownFiche({ markdown }) {
               type="button"
               onClick={goPrev}
               disabled={index <= 0}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-45 sm:w-auto"
+              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 active:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45 sm:w-auto"
               aria-label="Page précédente"
             >
               <ChevronLeftIcon className="shrink-0 opacity-80" />
@@ -134,7 +134,7 @@ export default function PagedMarkdownFiche({ markdown }) {
               type="button"
               onClick={goNext}
               disabled={index >= last}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-600/20 transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none sm:w-auto"
+              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white shadow-md shadow-indigo-600/20 transition hover:bg-indigo-500 active:bg-indigo-600 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none sm:w-auto"
               aria-label="Page suivante — tourner la page"
             >
               Tourner la page
@@ -144,12 +144,12 @@ export default function PagedMarkdownFiche({ markdown }) {
 
             <Link
               href="/reviser"
-              className="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-indigo-200 hover:bg-white hover:text-indigo-800 sm:w-auto"
+              className="inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-indigo-200 hover:bg-white hover:text-indigo-800 active:bg-slate-50 sm:w-auto"
             >
               Nouvelle fiche
             </Link>
           </div>
-          <p className="mt-2 text-center text-[11px] text-slate-500">
+          <p className="hide-on-touch mt-2 text-center text-[11px] text-slate-500">
             Flèches gauche / droite du clavier
           </p>
         </div>

@@ -106,8 +106,9 @@ export function SelectField({
       if (!el) return;
       const r = el.getBoundingClientRect();
       const gap = 4;
+      const menuCap = Math.min(320, Math.round(window.innerHeight * 0.45));
       if (menuPlacement === "above") {
-        const maxHeight = Math.min(240, Math.max(80, r.top - gap - 12));
+        const maxHeight = Math.min(menuCap, Math.max(80, r.top - gap - 12));
         const bottom = window.innerHeight - r.top + gap;
         setMenuRect({
           placement: "above",
@@ -119,7 +120,7 @@ export function SelectField({
         return;
       }
       const top = r.bottom + gap;
-      const maxHeight = Math.min(240, Math.max(80, window.innerHeight - top - 12));
+      const maxHeight = Math.min(menuCap, Math.max(80, window.innerHeight - top - 12));
       setMenuRect({
         placement: "below",
         top,
@@ -191,7 +192,7 @@ export function SelectField({
                     key={`${item.value}-${i}`}
                     role="option"
                     aria-selected={selected}
-                    className={`cursor-pointer px-4 py-2.5 text-sm ${
+                    className={`cursor-pointer px-4 py-3.5 text-sm ${
                       item.disabled
                         ? "cursor-not-allowed text-slate-300"
                         : selected
@@ -217,7 +218,7 @@ export function SelectField({
                         key={`${opt.value}-${j}`}
                         role="option"
                         aria-selected={selected}
-                        className={`cursor-pointer px-4 py-2.5 pl-6 text-sm ${
+                        className={`cursor-pointer px-4 py-3.5 pl-6 text-sm ${
                           opt.disabled
                             ? "cursor-not-allowed text-slate-300"
                             : selected
@@ -260,7 +261,7 @@ export function SelectField({
               setOpen(true);
             }
           }}
-          className="peer flex w-full cursor-pointer items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 pr-10 text-left text-base text-slate-900 shadow-sm outline-none transition hover:border-slate-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+          className="peer flex min-h-12 w-full cursor-pointer items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 pr-10 text-left text-base text-slate-900 shadow-sm outline-none transition hover:border-slate-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 active:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
         >
           <span className={displayLabel ? "text-slate-900" : "text-slate-400"}>
             {displayLabel || "—"}
