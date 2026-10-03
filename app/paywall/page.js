@@ -95,23 +95,12 @@ export default function PaywallPage() {
 
           <div className="px-5 pb-6 pt-6 sm:px-6 sm:pb-7 sm:pt-7">
             <div className="text-center">
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-800 ring-1 ring-amber-200/80">
-                <span aria-hidden>⭐</span> Premium annuel
-              </span>
-
-              <h1 className="mt-4 font-[family-name:var(--font-geist-sans)] text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
-                Premium Annuel — {YEARLY_LABEL}/an
+              <h1 className="font-[family-name:var(--font-geist-sans)] text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
+                Révision facile Premium
               </h1>
-
-              <p className="mt-2 text-base text-slate-600">
-                soit <span className="font-semibold text-slate-800">{PER_MONTH_LABEL}/mois</span>
+              <p className="mt-2 text-sm text-slate-600">
+                {YEARLY_LABEL}/an · {PER_MONTH_LABEL}/mois
               </p>
-
-              {TRIAL_DAYS > 0 ? (
-                <p className="mt-3 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-800 ring-1 ring-emerald-200/80">
-                  {TRIAL_DAYS} jours gratuits
-                </p>
-              ) : null}
             </div>
 
             <button
@@ -128,8 +117,14 @@ export default function PaywallPage() {
             </button>
 
             <p className="mt-3 text-center text-xs leading-relaxed text-slate-500">
-              Puis {YEARLY_LABEL}/an. Annulable avant la fin de l’essai.
+              Puis {YEARLY_LABEL}/an
             </p>
+            {TRIAL_DAYS > 0 ? (
+              <p className="mt-1.5 flex items-center justify-center gap-1.5 text-xs text-slate-600">
+                <CheckIcon className="size-3.5 shrink-0 text-emerald-600" />
+                <span>Annulable avant la fin de l’essai</span>
+              </p>
+            ) : null}
 
             <ul className="mt-6 space-y-2 border-t border-slate-100 pt-5">
               {PAYWALL_BENEFITS.map((label) => (
@@ -140,17 +135,17 @@ export default function PaywallPage() {
               ))}
             </ul>
 
-            <div className="mt-6 rounded-xl border border-slate-100 bg-slate-50/80 px-4 py-4 text-center">
-              <p className="text-sm font-medium text-slate-700">
-                Mensuel — {MONTHLY_LABEL}/mois
+            <div className="mt-5 flex items-center justify-between gap-3 rounded-lg border border-slate-100 bg-slate-50/60 px-3 py-2.5">
+              <p className="text-xs text-slate-600">
+                Mensuel · <span className="font-medium text-slate-700">{MONTHLY_LABEL}/mois</span>
               </p>
               <button
                 type="button"
                 onClick={() => void startCheckout("monthly")}
                 disabled={loadingPlan !== null}
-                className="mt-2.5 inline-flex min-h-10 items-center justify-center rounded-lg px-4 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-50 active:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-65"
+                className="inline-flex min-h-9 shrink-0 items-center justify-center rounded-md px-3 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-50 active:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-65"
               >
-                {monthlyBusy ? "Redirection…" : "Choisir le mensuel"}
+                {monthlyBusy ? "…" : "Choisir"}
               </button>
             </div>
           </div>
