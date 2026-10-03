@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import {
-  DEFAULT_PREMIUM_MONTHLY_EUR,
   DEFAULT_PREMIUM_TRIAL_DAYS,
   DEFAULT_PREMIUM_YEARLY_EUR,
   formatEurLabel,
@@ -22,11 +21,9 @@ function parseEnvInt(raw, fallback) {
 }
 
 const YEARLY_EUR = parseEnvEur(process.env.NEXT_PUBLIC_PREMIUM_YEARLY_EUR, DEFAULT_PREMIUM_YEARLY_EUR);
-const MONTHLY_EUR = parseEnvEur(process.env.NEXT_PUBLIC_PREMIUM_MONTHLY_EUR, DEFAULT_PREMIUM_MONTHLY_EUR);
 const TRIAL_DAYS = parseEnvInt(process.env.NEXT_PUBLIC_PREMIUM_TRIAL_DAYS, DEFAULT_PREMIUM_TRIAL_DAYS);
 
 const YEARLY_LABEL = formatEurLabel(YEARLY_EUR);
-const MONTHLY_LABEL = formatEurLabel(MONTHLY_EUR);
 
 const PAYWALL_BENEFITS = [
   "Fiches de révision illimitées",
@@ -82,7 +79,6 @@ export default function PaywallPage() {
   }, []);
 
   const yearlyBusy = loadingPlan === "yearly";
-  const monthlyBusy = loadingPlan === "monthly";
 
   useEffect(() => {
     const html = document.documentElement;
@@ -143,20 +139,6 @@ export default function PaywallPage() {
                 </li>
               ))}
             </ul>
-
-            <div className="mt-3 flex items-center justify-between gap-3 rounded-lg border border-slate-100 bg-slate-50/60 px-3 py-2">
-              <p className="text-[11px] text-slate-600 sm:text-xs">
-                Mensuel · <span className="font-medium text-slate-700">{MONTHLY_LABEL}/mois</span>
-              </p>
-              <button
-                type="button"
-                onClick={() => void startCheckout("monthly")}
-                disabled={loadingPlan !== null}
-                className="inline-flex min-h-8 shrink-0 items-center justify-center rounded-md px-2.5 text-[11px] font-semibold text-indigo-700 transition hover:bg-indigo-50 active:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-65 sm:min-h-9 sm:px-3 sm:text-xs"
-              >
-                {monthlyBusy ? "…" : "Choisir"}
-              </button>
-            </div>
 
             {error ? (
               <p
