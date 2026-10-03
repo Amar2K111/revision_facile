@@ -31,7 +31,7 @@ export const metadata = {
     locale: "fr_FR",
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: "Fiches de révision Bac 2027 — Terminale | Révision facile",
+    title: "Fiches révision Bac 2027 + quiz | Révision facile",
     description: DEFAULT_DESCRIPTION,
     images: [
       {
@@ -44,7 +44,7 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Fiches de révision Bac 2027 — Terminale | Révision facile",
+    title: "Fiches révision Bac 2027 + quiz | Révision facile",
     description: DEFAULT_DESCRIPTION,
     images: ["/og-image.png"],
   },

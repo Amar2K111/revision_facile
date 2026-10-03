@@ -10,10 +10,10 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: {
-    absolute: "Fiches de révision Bac 2027 — Terminale | Révision facile",
+    absolute: "Fiches révision Bac 2027 + quiz | Révision facile",
   },
   description:
-    "Tu passes le Bac en 2027 ? Fiche claire + quiz sur la notion que tu choisis. Révision ciblée, alignée sur le programme — sans promesse miracle.",
+    "Fiches de révision Bac 2027 par chapitre + quiz. Terminale, Brevet, BTS. Tu choisis ta spé et ta notion, on génère la fiche.",
   alternates: { canonical: "/" },
 };
 

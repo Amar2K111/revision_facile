@@ -1,7 +1,9 @@
 export const metadata = {
-  title: "Révision Express",
+  title: {
+    absolute: "Révision facile - Bac 2027",
+  },
   description:
-    "Choisis ton niveau, ta matière et ton sujet pour générer une fiche Révision facile.",
+    "Fiches de révision Bac 2027 : choisis ta spé, ta matière et ton chapitre.",
 };
 
 export default function ReviserLayout({ children }) {
