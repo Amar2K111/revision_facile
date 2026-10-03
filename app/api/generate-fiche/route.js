@@ -9,7 +9,10 @@ import {
   getPracticeQuizFragmentSystemPrompt,
   getRevisionFacileSystemPrompt,
 } from "../../../lib/revisionFacilePrompt";
+import { ensurePremiumProfile } from "../../../lib/ensurePremiumProfile";
 import { profileHasActivePremium } from "../../../lib/profilePremium";
+import { getStripe } from "../../../lib/stripe/server";
+import { createSupabaseAdminClient } from "../../../lib/supabase/admin";
 import { extractPracticeQuizFence } from "../../../lib/parseFlashrevisQuiz";
 import {
   countValidPracticeQuizQuestions,
@@ -104,11 +107,23 @@ export async function POST(request) {
     return Response.json({ error: "Connexion requise pour générer une fiche." }, { status: 401 });
   }
 
-  const { data: profile, error: profileError } = await supabase
+  const { data: initialProfile, error: profileError } = await supabase
     .from("profiles")
-    .select("is_premium, premium_until")
+    .select("is_premium, premium_until, stripe_customer_id, email")
     .eq("id", user.id)
     .maybeSingle();
+
+  let profile = initialProfile;
+  if (!profileError && !profileHasActivePremium(profile)) {
+    const admin = createSupabaseAdminClient();
+    if (admin) {
+      try {
+        profile = await ensurePremiumProfile(admin, getStripe(), user.id, user.email, profile);
+      } catch {
+        /* garde le profil initial */
+      }
+    }
+  }
 
   if (profileError || !profileHasActivePremium(profile)) {
     return Response.json(

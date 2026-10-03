@@ -9,6 +9,7 @@ import { signInWithGoogleClient } from "../../lib/auth/signInWithGoogle";
 import { AppLoadingScreen } from "../AppLoadingScreen";
 import AuthPageShell from "./AuthPageShell";
 import GoogleMark from "./GoogleMark";
+import { PasswordInput } from "./PasswordInput";
 
 const inputClass =
   "w-full cursor-text rounded-lg border border-gray-200 bg-white px-4 py-3 text-base text-neutral-950 placeholder:text-slate-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 min-h-[44px] transition-all duration-200";
@@ -162,32 +163,26 @@ export default function SignUpView() {
             >
               Mot de passe
             </label>
-            <input
+            <PasswordInput
               id={passwordId}
               name="password"
-              type="password"
               autoComplete="new-password"
-              placeholder="••••••••"
               required
               value={password}
               onChange={(ev) => setPassword(ev.target.value)}
-              className={inputClass}
             />
           </div>
           <div className="space-y-2">
             <label htmlFor={confirmId} className="block text-sm font-medium tracking-tight text-black">
               Confirmer le mot de passe
             </label>
-            <input
+            <PasswordInput
               id={confirmId}
               name="confirm"
-              type="password"
               autoComplete="new-password"
-              placeholder="••••••••"
               required
               value={confirm}
               onChange={(ev) => setConfirm(ev.target.value)}
-              className={inputClass}
             />
           </div>
           <button

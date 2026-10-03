@@ -66,7 +66,12 @@ export default function ReviserPage() {
     }
     let cancelled = false;
     void (async () => {
-      // Le webhook Stripe peut mettre 1–3 s à activer le Premium dans Supabase.
+      // Secours si le webhook Stripe est en retard ou a échoué (ex. secret régénéré).
+      try {
+        await fetch("/api/stripe/sync-premium", { method: "POST" });
+      } catch {
+        /* ignore */
+      }
       for (let attempt = 0; attempt < 12 && !cancelled; attempt += 1) {
         const active = await loadPremium();
         if (active) {
@@ -176,8 +181,17 @@ export default function ReviserPage() {
       return;
     }
     if (!isPremium) {
-      router.push("/paywall");
-      return;
+      try {
+        await fetch("/api/stripe/sync-premium", { method: "POST" });
+        const active = await loadPremium();
+        if (!active) {
+          router.push("/paywall");
+          return;
+        }
+      } catch {
+        router.push("/paywall");
+        return;
+      }
     }
     setError(null);
     setLoading(true);
