@@ -1,0 +1,37 @@
+{
+  "name": "revision",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --webpack",
+    "dev:turbo": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "stripe:login": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/stripe.ps1 login",
+    "stripe:listen": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/stripe.ps1 listen --forward-to localhost:3000/api/stripe/webhook",
+    "stripe:version": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/stripe.ps1 version"
+  },
+  "dependencies": {
+    "@google/genai": "^1.52.0",
+    "@google/generative-ai": "^0.24.1",
+    "@supabase/ssr": "^0.10.2",
+    "@supabase/supabase-js": "^2.105.3",
+    "katex": "^0.16.45",
+    "mermaid": "^11.14.0",
+    "next": "16.2.4",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-markdown": "^10.1.0",
+    "rehype-katex": "^7.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0",
+    "stripe": "^22.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.4",
+    "tailwindcss": "^4"
+  }
+}

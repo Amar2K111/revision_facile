@@ -1,0 +1,10 @@
+# Config Supabase CLI — https://supabase.com/docs/guides/cli/config
+# Associe le dossier au projet : supabase link --project-ref <ton-ref>
+
+[functions.stripe-webhook]
+# Stripe appelle l’URL sans JWT : ne pas exiger Authorization.
+verify_jwt = false
+
+[auth.email.template.confirmation]
+subject = "Confirme ton adresse e-mail"
+content_path = "./supabase/templates/confirmation-fr.html"
