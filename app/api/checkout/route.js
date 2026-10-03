@@ -134,6 +134,7 @@ export async function POST(request) {
   const trialDays = plan === "yearly" ? resolvePremiumTrialDays() : 0;
 
   const baseSession = {
+    locale: "fr",
     success_url: `${origin}/reviser?checkout=success`,
     cancel_url: `${origin}/paywall?checkout=cancel`,
     client_reference_id: user.id,

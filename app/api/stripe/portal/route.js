@@ -85,6 +85,7 @@ export async function POST(request) {
   try {
     const portal = await stripe.billingPortal.sessions.create({
       customer: customerId,
+      locale: "fr",
       return_url: returnUrl,
     });
     if (!portal.url) {
