@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { HomeCtaAuth, HomeHeaderAuth, HomeHeroAuth } from "../components/HomeAuthButtons";
 import { HomePageGate } from "../components/HomePageGate";
 import { SiteLogo } from "../components/SiteLogo";
-import { POST_LOGIN_DEFAULT_PATH, resolvePostAuthPath } from "../lib/authRedirects";
+import { loggedInAppEntryPath } from "../lib/authRedirects";
 import { fetchProfileForRouting } from "../lib/fetchProfileForRouting";
 import { createSupabaseServerClient } from "../lib/supabase/server";
 
@@ -24,7 +24,7 @@ export default async function HomePage() {
   } = await supabase.auth.getUser();
   if (user) {
     const profile = await fetchProfileForRouting(supabase, user.id);
-    redirect(resolvePostAuthPath(profile, POST_LOGIN_DEFAULT_PATH));
+    redirect(loggedInAppEntryPath(profile));
   }
 
   return (

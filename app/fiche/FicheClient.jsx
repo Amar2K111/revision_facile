@@ -51,10 +51,10 @@ export default function FicheClient() {
           fiche.
         </p>
         <Link
-          href="/"
+          href="/reviser"
           className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-500"
         >
-          Retour à l’accueil
+          Générer une fiche
         </Link>
       </div>
     );

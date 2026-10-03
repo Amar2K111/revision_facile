@@ -1,8 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
 import {
-  POST_LOGIN_DEFAULT_PATH,
+  isGuestOnlyHomePath,
+  loggedInAppEntryPath,
   onboardingPathWithNext,
+  POST_LOGIN_DEFAULT_PATH,
   resolvePostAuthPath,
 } from "./lib/authRedirects";
 import { fetchProfileForRouting } from "./lib/fetchProfileForRouting";
@@ -79,13 +81,8 @@ export async function proxy(request) {
     const profile = await fetchProfileForRouting(supabase, user.id);
     const needsOnboarding = profileNeedsOnboarding(profile);
 
-    if (pathname === "/") {
-      if (needsOnboarding) {
-        return NextResponse.redirect(
-          new URL(onboardingPathWithNext(POST_LOGIN_DEFAULT_PATH), request.url),
-        );
-      }
-      return NextResponse.redirect(new URL(POST_LOGIN_DEFAULT_PATH, request.url));
+    if (isGuestOnlyHomePath(pathname)) {
+      return NextResponse.redirect(new URL(loggedInAppEntryPath(profile), request.url));
     }
 
     if (isAuthEntryPath(pathname)) {

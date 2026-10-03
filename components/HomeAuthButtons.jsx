@@ -1,44 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import AuthUserAvatar from "./AuthUserAvatar";
-import { createSupabaseBrowserClient } from "../lib/supabase/client";
 
 const SIGNIN = "/auth/signin?next=/reviser";
 const SIGNUP = "/auth/signup?next=/reviser";
-const REVISER = "/reviser";
 
+/** CTAs accueil — page réservée aux visiteurs non connectés (voir HomePageGate + proxy). */
 export function HomeHeaderAuth() {
-  const [loggedIn, setLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const supabase = createSupabaseBrowserClient();
-    void supabase.auth.getSession().then(({ data }) => {
-      setLoggedIn(!!data.session);
-    });
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setLoggedIn(!!session);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
-  if (loggedIn) {
-    return (
-      <div className="flex items-center gap-2 sm:gap-3">
-        <AuthUserAvatar />
-        <Link
-          href={REVISER}
-          className="inline-flex min-h-11 items-center rounded-full bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm shadow-indigo-600/20 transition hover:bg-indigo-500 active:bg-indigo-600"
-        >
-          Commencer
-        </Link>
-      </div>
-    );
-  }
-
   return (
     <div className="flex items-center gap-2 sm:gap-3">
       <Link
@@ -58,32 +26,6 @@ export function HomeHeaderAuth() {
 }
 
 export function HomeHeroAuth() {
-  const [loggedIn, setLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const supabase = createSupabaseBrowserClient();
-    void supabase.auth.getSession().then(({ data }) => {
-      setLoggedIn(!!data.session);
-    });
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setLoggedIn(!!session);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
-  if (loggedIn) {
-    return (
-      <Link
-        href={REVISER}
-        className="inline-flex min-h-[3.25rem] w-full items-center justify-center rounded-full bg-indigo-600 px-8 text-sm font-semibold text-white shadow-lg shadow-indigo-600/25 transition hover:bg-indigo-500 active:bg-indigo-600 sm:w-auto"
-      >
-        Commencer
-      </Link>
-    );
-  }
-
   return (
     <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center">
       <Link
@@ -103,37 +45,20 @@ export function HomeHeroAuth() {
 }
 
 export function HomeCtaAuth() {
-  const [loggedIn, setLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const supabase = createSupabaseBrowserClient();
-    void supabase.auth.getSession().then(({ data }) => {
-      setLoggedIn(!!data.session);
-    });
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setLoggedIn(!!session);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
   return (
     <div className="mt-8 flex flex-col items-center gap-3">
       <Link
-        href={loggedIn ? REVISER : SIGNUP}
+        href={SIGNUP}
         className="inline-flex min-h-[3.25rem] items-center justify-center rounded-full bg-white px-8 text-sm font-semibold text-indigo-700 shadow-lg transition hover:bg-indigo-50 active:bg-indigo-100"
       >
         Commencer
       </Link>
-      {!loggedIn ? (
-        <p className="text-sm text-indigo-100">
-          Déjà un compte ?{" "}
-          <Link href={SIGNIN} className="font-semibold text-white underline underline-offset-2 hover:text-indigo-50">
-            Se connecter
-          </Link>
-        </p>
-      ) : null}
+      <p className="text-sm text-indigo-100">
+        Déjà un compte ?{" "}
+        <Link href={SIGNIN} className="font-semibold text-white underline underline-offset-2 hover:text-indigo-50">
+          Se connecter
+        </Link>
+      </p>
     </div>
   );
 }
