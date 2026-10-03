@@ -34,6 +34,13 @@ const PAYWALL_BENEFITS = [
   "Programme Brevet, Bac et BTS 2027",
 ];
 
+const TRUST_SIGNALS = [
+  "Paiement 100 % sécurisé",
+  "Annulable à tout moment",
+  "Sans frais cachés",
+  "Données protégées",
+];
+
 function CheckIcon({ className }) {
   return (
     <svg className={className} viewBox="0 0 20 20" fill="currentColor" aria-hidden>
@@ -159,6 +166,24 @@ export default function PaywallPage() {
                 {error}
               </p>
             ) : null}
+
+            <ul
+              className="mt-3 grid grid-cols-2 gap-x-2 gap-y-1 border-t border-slate-100 pt-3"
+              aria-label="Garanties"
+            >
+              {TRUST_SIGNALS.map((label) => (
+                <li
+                  key={label}
+                  className="flex items-center gap-1 text-[10px] leading-tight text-slate-500 sm:text-[11px]"
+                >
+                  <CheckIcon className="size-3 shrink-0 text-emerald-600" />
+                  <span>{label}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 text-center text-[10px] text-slate-400 sm:text-[11px]">
+              Paiement chiffré via Stripe · CB, Apple Pay, Google Pay
+            </p>
           </div>
         </article>
       </main>
