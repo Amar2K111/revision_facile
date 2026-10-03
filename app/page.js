@@ -10,7 +10,7 @@ export const metadata = {
     absolute: "Fiches de révision Bac 2027 — Terminale | Révision facile",
   },
   description:
-    "Tu passes le Bac cette année ? Génère ta fiche de révision + quiz en quelques secondes, alignée sur le programme 2026-2027. Aussi pour le Brevet et le BTS.",
+    "Tu passes le Bac en 2027 ? Fiche claire + quiz sur la notion que tu choisis. Révision ciblée, alignée sur le programme — sans promesse miracle.",
   alternates: { canonical: "/" },
 };
 
@@ -45,15 +45,16 @@ export default async function HomePage() {
               </p>
             </div>
             <h1 className="mt-5 font-[family-name:var(--font-geist-sans)] text-[1.75rem] font-semibold leading-tight tracking-tight text-slate-900 sm:mt-6 sm:text-4xl sm:leading-[1.12] md:text-[2.75rem]">
-              Tu passes le Bac{" "}
-              <span className="text-indigo-700">cette année</span> ?
+              Tu procrastines{" "}
+              <span className="text-indigo-700">pour le Bac ?</span>
             </h1>
             <p className="mx-auto mt-5 max-w-lg text-pretty text-base leading-relaxed text-slate-700 sm:mt-6 sm:text-lg">
-              Terminale : choisis ta spé, ta matière et ton chapitre — ta fiche + ton quiz
-              sont prêts en quelques secondes.
+              Tu choisis ta spé et ton chapitre — on te génère la fiche + le quiz. Tu révises
+              l’essentiel, sans te noyer dans le cours.
             </p>
-            <p className="mx-auto mt-3 max-w-md text-pretty text-sm leading-relaxed text-slate-500">
-              Également pour la 3ᵉ (Brevet) et les étudiants BTS.
+            <p className="mx-auto mt-4 max-w-md text-pretty text-sm leading-relaxed text-slate-500">
+              Pas de promesse miracle : juste une révision régulière, ciblée sur ce que tu dois
+              savoir pour juin. Aussi Brevet et BTS.
             </p>
             <div className="mt-8 sm:mt-10">
               <HomeHeroAuth />
@@ -67,7 +68,7 @@ export default async function HomePage() {
               Prêt à réviser pour le Bac ?
             </h2>
             <p className="mt-3 text-sm text-indigo-100 sm:text-base">
-              Spé, matière, notion — c’est tout.
+              Spé, matière, chapitre — chaque notion compte.
             </p>
             <HomeCtaAuth />
           </div>
