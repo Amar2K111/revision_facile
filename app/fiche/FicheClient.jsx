@@ -81,7 +81,7 @@ export default function FicheClient() {
             </Link>
           </div>
           <div className="flex justify-center">
-            <SiteLogo variant="domain" size="sm" href="/" />
+            <SiteLogo variant="domain" size="sm" href="/reviser" />
           </div>
           <div className="flex shrink-0 items-center justify-end gap-2 sm:gap-3">
             <AuthUserAvatar />

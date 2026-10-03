@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import SignUpView from "../../../components/auth/SignUpView";
 import {
   POST_LOGIN_DEFAULT_PATH,
-  resolvePostAuthPath,
+  resolvePostSignupPath,
 } from "../../../lib/authRedirects";
 import { fetchProfileForRouting } from "../../../lib/fetchProfileForRouting";
 import { createSupabaseServerClient } from "../../../lib/supabase/server";
@@ -27,7 +27,7 @@ export default async function SignUpPage({ searchParams }) {
   } = await supabase.auth.getUser();
   if (user) {
     const profile = await fetchProfileForRouting(supabase, user.id);
-    redirect(resolvePostAuthPath(profile, rawNext || POST_LOGIN_DEFAULT_PATH));
+    redirect(resolvePostSignupPath(profile, rawNext || POST_LOGIN_DEFAULT_PATH));
   }
 
   return (

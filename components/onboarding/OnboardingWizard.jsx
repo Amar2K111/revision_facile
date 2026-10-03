@@ -262,24 +262,46 @@ export default function OnboardingWizard() {
   );
 
   return (
-    <div className="w-full max-w-lg">
-      <div className="mb-6">
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-600 transition-all duration-300"
-            style={{ width: `${progress}%` }}
-            role="progressbar"
-            aria-valuenow={Math.round(progress)}
-            aria-valuemin={0}
-            aria-valuemax={100}
-          />
+    <div className="relative flex min-h-dvh flex-col bg-gradient-to-b from-indigo-50/80 via-slate-50 to-slate-50 pt-safe pb-safe">
+      <header className="sticky top-0 z-20 border-b border-slate-200/50 bg-slate-50/90 backdrop-blur-md">
+        <div className="mx-auto flex h-14 w-full max-w-lg items-center px-4 sm:h-16">
+          {stepIndex > 0 ? (
+            <button
+              type="button"
+              onClick={goBack}
+              disabled={submitting}
+              aria-label="Étape précédente"
+              className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-medium text-slate-700 transition hover:bg-white/80 hover:text-slate-900 active:bg-white disabled:opacity-50"
+            >
+              <span aria-hidden className="text-lg leading-none">
+                ←
+              </span>
+              <span className="ml-1.5 hidden sm:inline">Retour</span>
+            </button>
+          ) : (
+            <span className="inline-block h-11 w-11 shrink-0" aria-hidden />
+          )}
         </div>
-        <p className="mt-2 text-center text-xs text-slate-500">
-          Étape {stepIndex + 1} sur {visibleSteps.length}
-        </p>
-      </div>
+      </header>
 
-      <div className="rounded-[2rem] border border-gray-200 bg-white p-5 shadow-lg sm:p-8">
+      <main className="mx-auto flex w-full max-w-lg flex-1 flex-col px-4 py-5 pb-28 sm:py-8 sm:pb-8">
+        <div className="mb-5 sm:mb-6">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-600 transition-all duration-300"
+              style={{ width: `${progress}%` }}
+              role="progressbar"
+              aria-valuenow={Math.round(progress)}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            />
+          </div>
+          <p className="mt-2 text-center text-xs text-slate-500">
+            Étape {stepIndex + 1} sur {visibleSteps.length}
+          </p>
+        </div>
+
+        <div className="rounded-[2rem] border border-gray-200 bg-white p-5 shadow-lg sm:p-8">
         <h1 className="font-[family-name:var(--font-geist-sans)] text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
           {step.title}
         </h1>
@@ -407,53 +429,44 @@ export default function OnboardingWizard() {
           </p>
         ) : null}
 
-        <div className="sticky bottom-0 -mx-5 mt-8 border-t border-slate-100 bg-white/95 px-5 py-4 pb-[max(env(safe-area-inset-bottom,0px),1rem)] backdrop-blur-sm sm:static sm:mx-0 sm:flex sm:flex-row sm:justify-between sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
-          {stepIndex > 0 ? (
+        {step.type !== "recap" && step.optional ? (
+          <div className="mt-6 flex justify-center">
             <button
               type="button"
-              onClick={goBack}
+              onClick={skipStep}
               disabled={submitting}
-              className="order-2 inline-flex min-h-12 w-full items-center justify-center rounded-[10px] border border-slate-200 px-6 text-sm font-medium text-slate-700 transition hover:bg-slate-50 active:bg-slate-100 sm:order-1 sm:w-auto"
+              className="inline-flex min-h-11 items-center px-3 text-sm font-medium text-slate-500 transition hover:text-slate-800 active:text-slate-900 disabled:opacity-50"
             >
-              Retour
+              Passer cette question
+            </button>
+          </div>
+        ) : null}
+        </div>
+      </main>
+
+      <footer className="sticky bottom-0 z-20 border-t border-slate-200/60 bg-white/95 px-4 py-4 pb-[max(env(safe-area-inset-bottom,0px),1rem)] backdrop-blur-md">
+        <div className="mx-auto w-full max-w-lg">
+          {step.type === "recap" ? (
+            <button
+              type="button"
+              onClick={finish}
+              disabled={submitting}
+              className="inline-flex min-h-12 w-full items-center justify-center rounded-[10px] bg-gradient-to-br from-indigo-600 to-blue-700 px-8 text-base font-medium text-white shadow-lg transition hover:shadow-xl active:opacity-90 disabled:opacity-60"
+            >
+              {submitting ? "Enregistrement…" : "C’est parti"}
             </button>
           ) : (
-            <span className="hidden sm:block sm:flex-1" />
+            <button
+              type="button"
+              onClick={goNext}
+              disabled={submitting}
+              className="inline-flex min-h-12 w-full items-center justify-center rounded-[10px] bg-gradient-to-br from-indigo-600 to-blue-700 px-8 text-base font-medium text-white shadow-lg transition hover:shadow-xl active:opacity-90 disabled:opacity-60"
+            >
+              Continuer
+            </button>
           )}
-
-          <div className="order-1 flex w-full flex-col gap-2 sm:order-2 sm:ml-auto sm:w-auto">
-            {step.type !== "recap" && step.optional ? (
-              <button
-                type="button"
-                onClick={skipStep}
-                disabled={submitting}
-                className="inline-flex min-h-11 w-full items-center justify-center rounded-[10px] px-4 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-800 active:bg-slate-100 sm:w-auto"
-              >
-                Passer cette question
-              </button>
-            ) : null}
-
-            {step.type === "recap" ? (
-              <button
-                type="button"
-                onClick={finish}
-                disabled={submitting}
-                className="inline-flex min-h-12 w-full items-center justify-center rounded-[10px] bg-gradient-to-br from-indigo-600 to-blue-700 px-8 text-base font-medium text-white shadow-lg transition hover:shadow-xl active:opacity-90 disabled:opacity-60 sm:w-auto"
-              >
-                {submitting ? "Enregistrement…" : "C’est parti"}
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={goNext}
-                className="inline-flex min-h-12 w-full items-center justify-center rounded-[10px] bg-gradient-to-br from-indigo-600 to-blue-700 px-8 text-base font-medium text-white shadow-lg transition hover:shadow-xl active:opacity-90 sm:w-auto"
-              >
-                Continuer
-              </button>
-            )}
-          </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }

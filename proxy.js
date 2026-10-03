@@ -1,6 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
-import { onboardingPathWithNext } from "./lib/authRedirects";
+import {
+  POST_LOGIN_DEFAULT_PATH,
+  onboardingPathWithNext,
+  resolvePostAuthPath,
+} from "./lib/authRedirects";
 import { fetchProfileForRouting } from "./lib/fetchProfileForRouting";
 import { profileNeedsOnboarding } from "./lib/profileOnboarding";
 import { getSupabaseConfigSafe } from "./lib/supabase/env";
@@ -19,6 +23,10 @@ function isOnboardingExempt(pathname) {
     pathname.startsWith(`${ONBOARDING_PATH}/`) ||
     pathname === API_ONBOARDING_PATH
   );
+}
+
+function isAuthEntryPath(pathname) {
+  return pathname === "/auth" || pathname === "/auth/signin" || pathname === "/auth/signup";
 }
 
 export async function proxy(request) {
@@ -67,15 +75,28 @@ export async function proxy(request) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (user && !isOnboardingExempt(pathname)) {
-    const needsGate = isProtectedPath(pathname) || pathname === "/";
-    if (needsGate) {
-      const profile = await fetchProfileForRouting(supabase, user.id);
-      if (profileNeedsOnboarding(profile)) {
-        const nextPath = `${pathname}${request.nextUrl.search}`;
-        const dest = new URL(onboardingPathWithNext(nextPath), request.url);
-        return NextResponse.redirect(dest);
+  if (user) {
+    const profile = await fetchProfileForRouting(supabase, user.id);
+    const needsOnboarding = profileNeedsOnboarding(profile);
+
+    if (pathname === "/") {
+      if (needsOnboarding) {
+        return NextResponse.redirect(
+          new URL(onboardingPathWithNext(POST_LOGIN_DEFAULT_PATH), request.url),
+        );
       }
+      return NextResponse.redirect(new URL(POST_LOGIN_DEFAULT_PATH, request.url));
+    }
+
+    if (isAuthEntryPath(pathname)) {
+      const rawNext = request.nextUrl.searchParams.get("next") ?? "";
+      const dest = resolvePostAuthPath(profile, rawNext || POST_LOGIN_DEFAULT_PATH);
+      return NextResponse.redirect(new URL(dest, request.url));
+    }
+
+    if (needsOnboarding && isProtectedPath(pathname) && !isOnboardingExempt(pathname)) {
+      const nextPath = `${pathname}${request.nextUrl.search}`;
+      return NextResponse.redirect(new URL(onboardingPathWithNext(nextPath), request.url));
     }
   }
 

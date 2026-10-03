@@ -255,7 +255,7 @@ export default function ReviserPage() {
                   <SiteLogo
                     variant="domain"
                     size="sm"
-                    href="/"
+                    href="/reviser"
                     className="pointer-events-auto justify-center"
                     labelClassName="min-w-0 text-balance font-[family-name:var(--font-geist-sans)] text-base font-semibold leading-snug tracking-tight sm:text-xl md:text-2xl"
                   />

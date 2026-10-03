@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useId, useState } from "react";
-import { sanitizeNextPath } from "../../lib/authRedirects";
+import { POST_LOGIN_DEFAULT_PATH, sanitizeNextPath } from "../../lib/authRedirects";
 import { resolvePostAuthPathClient } from "../../lib/postAuthRedirectClient";
 import { createSupabaseBrowserClient } from "../../lib/supabase/client";
 import { signInWithGoogleClient } from "../../lib/auth/signInWithGoogle";
@@ -25,7 +25,7 @@ export default function SignInView() {
   const [googlePending, setGooglePending] = useState(false);
   const [googleError, setGoogleError] = useState(null);
 
-  const next = sanitizeNextPath(searchParams.get("next") ?? "");
+  const next = sanitizeNextPath(searchParams.get("next") ?? POST_LOGIN_DEFAULT_PATH);
   const oauthFailed = searchParams.get("error") === "oauth";
 
   const persistNextHref = `/auth/signup?next=${encodeURIComponent(next)}`;
@@ -51,7 +51,11 @@ export default function SignInView() {
       }
       const userId = signInData.user?.id;
       const dest = userId
-        ? await resolvePostAuthPathClient(supabase, userId, searchParams.get("next") ?? "")
+        ? await resolvePostAuthPathClient(
+            supabase,
+            userId,
+            searchParams.get("next") ?? POST_LOGIN_DEFAULT_PATH,
+          )
         : next;
       router.refresh();
       router.replace(dest);

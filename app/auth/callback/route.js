@@ -1,16 +1,12 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "../../../lib/supabase/server";
-import {
-  POST_LOGIN_DEFAULT_PATH,
-  resolvePostAuthPath,
-  sanitizeNextPath,
-} from "../../../lib/authRedirects";
+import { POST_LOGIN_DEFAULT_PATH, resolvePostAuthPath } from "../../../lib/authRedirects";
 import { fetchProfileForRouting } from "../../../lib/fetchProfileForRouting";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = sanitizeNextPath(searchParams.get("next") ?? "");
+  const rawNext = searchParams.get("next") ?? POST_LOGIN_DEFAULT_PATH;
 
   if (code) {
     const supabase = await createSupabaseServerClient();
@@ -20,7 +16,7 @@ export async function GET(request) {
         data: { user },
       } = await supabase.auth.getUser();
       const profile = user ? await fetchProfileForRouting(supabase, user.id) : null;
-      const path = resolvePostAuthPath(profile, searchParams.get("next") ?? next);
+      const path = resolvePostAuthPath(profile, rawNext);
       const dest = new URL(path, request.url);
       return NextResponse.redirect(dest);
     }
