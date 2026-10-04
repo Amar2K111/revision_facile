@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
+import { mapAuthErrorMessage } from "../../lib/authErrorMessage";
 import { POST_LOGIN_DEFAULT_PATH, sanitizeNextPath } from "../../lib/authRedirects";
 import { createSupabaseBrowserClient } from "../../lib/supabase/client";
 import { SiteLogo } from "../SiteLogo";
@@ -56,7 +57,7 @@ export default function CheckEmailView() {
     });
     setResending(false);
     if (error) {
-      setResendError("Impossible de renvoyer l’e-mail pour le moment. Réessaie dans quelques minutes.");
+      setResendError(mapAuthErrorMessage(error.message, "Impossible de renvoyer l’e-mail pour le moment."));
       return;
     }
     setResent(true);

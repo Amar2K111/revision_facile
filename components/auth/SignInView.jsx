@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useId, useState } from "react";
+import { mapAuthErrorMessage } from "../../lib/authErrorMessage";
 import { POST_LOGIN_DEFAULT_PATH, sanitizeNextPath } from "../../lib/authRedirects";
 import { createSupabaseBrowserClient } from "../../lib/supabase/client";
 import { signInWithGoogleClient } from "../../lib/auth/signInWithGoogle";
@@ -51,11 +52,7 @@ export default function SignInView() {
       });
       if (error) {
         setSubmitting(false);
-        setFormError(
-          error.message?.toLowerCase().includes("invalid login")
-            ? "E-mail ou mot de passe incorrect."
-            : error.message || "Connexion impossible pour le moment.",
-        );
+        setFormError(mapAuthErrorMessage(error.message, "Connexion impossible pour le moment."));
         return;
       }
       setRedirecting(true);

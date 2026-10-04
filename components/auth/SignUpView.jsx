@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useId, useState } from "react";
+import { mapAuthErrorMessage } from "../../lib/authErrorMessage";
 import { POST_LOGIN_DEFAULT_PATH, sanitizeNextPath } from "../../lib/authRedirects";
 import { createSupabaseBrowserClient } from "../../lib/supabase/client";
 import { signInWithGoogleClient } from "../../lib/auth/signInWithGoogle";
@@ -64,11 +65,7 @@ export default function SignUpView() {
       });
       setSubmitting(false);
       if (error) {
-        setFormError(
-          error.message?.includes("already registered") || error.message?.includes("User already")
-            ? "Un compte existe déjà avec cet e-mail."
-            : error.message || "Inscription impossible pour le moment.",
-        );
+        setFormError(mapAuthErrorMessage(error.message, "Inscription impossible pour le moment."));
         return;
       }
       if (data.session && data.user?.id) {
