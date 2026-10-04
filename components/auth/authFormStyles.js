@@ -24,6 +24,10 @@ export const authPrimaryBtnClass =
 export const authGoogleBtnClass =
   "flex w-full min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-800 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 active:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:ring-offset-2 enabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-60";
 
+/** Bouton Google principal (en haut, avant le formulaire e-mail). */
+export const authGooglePrimaryBtnClass =
+  "flex w-full min-h-11 items-center justify-center gap-2.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-md shadow-slate-900/[0.04] transition hover:border-slate-300 hover:bg-slate-50 hover:shadow-lg active:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:ring-offset-2 enabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-60";
+
 export const authAlertClass = "rounded-xl border px-3 py-2 text-xs leading-snug";
 
 export const authDividerClass = "relative my-3";

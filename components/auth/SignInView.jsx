@@ -18,7 +18,7 @@ import {
   authDividerClass,
   authFieldClass,
   authFormClass,
-  authGoogleBtnClass,
+  authGooglePrimaryBtnClass,
   authInputClass,
   authLabelClass,
   authPrimaryBtnClass,
@@ -97,6 +97,25 @@ export default function SignInView() {
           </div>
         )}
 
+        <button
+          type="button"
+          onClick={handleGoogle}
+          disabled={googlePending || submitting}
+          className={authGooglePrimaryBtnClass}
+        >
+          <GoogleMark />
+          <span>{googlePending ? "Redirection…" : "Continuer avec Google"}</span>
+        </button>
+
+        <div className={authDividerClass}>
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-200" />
+          </div>
+          <div className="relative flex justify-center text-[11px] font-medium uppercase tracking-wide">
+            <span className="bg-white px-2 text-slate-400">ou</span>
+          </div>
+        </div>
+
         <form className={authFormClass} onSubmit={handleSubmit}>
           <div className={authFieldClass}>
             <label htmlFor={emailId} className={authLabelClass}>
@@ -128,24 +147,10 @@ export default function SignInView() {
               onChange={(ev) => setPassword(ev.target.value)}
             />
           </div>
-          <button type="submit" disabled={submitting} className={authPrimaryBtnClass}>
-            {submitting ? "Connexion…" : "Se connecter"}
+          <button type="submit" disabled={submitting || googlePending} className={authPrimaryBtnClass}>
+            {submitting ? "Connexion…" : "Se connecter avec e-mail"}
           </button>
         </form>
-
-        <div className={authDividerClass}>
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-200" />
-          </div>
-          <div className="relative flex justify-center text-[11px] font-medium uppercase tracking-wide">
-            <span className="bg-white px-2 text-slate-400">ou</span>
-          </div>
-        </div>
-
-        <button type="button" onClick={handleGoogle} disabled={googlePending} className={authGoogleBtnClass}>
-          <GoogleMark />
-          <span>{googlePending ? "Redirection…" : "Continuer avec Google"}</span>
-        </button>
 
         <p className="mt-3 text-center text-xs text-slate-500">
           Pas encore de compte ?{" "}
