@@ -69,14 +69,20 @@ export default function SignUpView() {
         );
         return;
       }
-      if (data.user?.id) {
+      if (data.session && data.user?.id) {
         setRedirecting(true);
         window.location.replace(
           `/auth/continue?next=${encodeURIComponent(POST_LOGIN_DEFAULT_PATH)}`,
         );
         return;
       }
-      setInfoMessage("Compte créé. Tu peux te connecter avec ton e-mail et ton mot de passe.");
+      if (data.user?.id) {
+        setInfoMessage(
+          "Compte créé ! Ouvre l’e-mail qu’on vient de t’envoyer et clique sur « Confirmer mon e-mail » pour te connecter. Pense à vérifier les spams.",
+        );
+        return;
+      }
+      setInfoMessage("Compte créé. Vérifie ta boîte mail pour finaliser l’inscription.");
     },
     [next, email, password, confirm, name],
   );
