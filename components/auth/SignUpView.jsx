@@ -7,12 +7,13 @@ import { POST_LOGIN_DEFAULT_PATH, sanitizeNextPath } from "../../lib/authRedirec
 import { createSupabaseBrowserClient } from "../../lib/supabase/client";
 import { signInWithGoogleClient } from "../../lib/auth/signInWithGoogle";
 import { AppLoadingScreen } from "../AppLoadingScreen";
+import { AuthCard } from "./AuthCard";
+import { AuthModeTabs } from "./AuthModeTabs";
 import AuthPageShell from "./AuthPageShell";
 import GoogleMark from "./GoogleMark";
 import { PasswordInput } from "./PasswordInput";
 import {
   authAlertClass,
-  authCardClass,
   authDividerClass,
   authFieldClass,
   authFormClass,
@@ -20,17 +21,13 @@ import {
   authInputClass,
   authLabelClass,
   authPrimaryBtnClass,
-  authSubtitleClass,
-  authTitleClass,
 } from "./authFormStyles";
 
 export default function SignUpView() {
   const searchParams = useSearchParams();
-  const nameId = useId();
   const emailId = useId();
   const passwordId = useId();
   const confirmId = useId();
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -42,7 +39,7 @@ export default function SignUpView() {
   const [redirecting, setRedirecting] = useState(false);
 
   const next = sanitizeNextPath(searchParams.get("next") ?? POST_LOGIN_DEFAULT_PATH);
-  const signInHref = `/auth/signin?next=${encodeURIComponent(next)}`;
+  const nextEncoded = encodeURIComponent(next);
 
   const handleSubmit = useCallback(
     async (e) => {
@@ -64,10 +61,7 @@ export default function SignUpView() {
         email: email.trim(),
         password,
         options: {
-          emailRedirectTo: origin ? `${origin}/auth/callback?next=${encodeURIComponent(next)}` : undefined,
-          data: {
-            full_name: name.trim() || undefined,
-          },
+          emailRedirectTo: origin ? `${origin}/auth/callback?next=${nextEncoded}` : undefined,
         },
       });
       setSubmitting(false);
@@ -94,7 +88,7 @@ export default function SignUpView() {
       }
       setInfoMessage("Compte créé. Vérifie ta boîte mail pour finaliser l’inscription.");
     },
-    [next, email, password, confirm, name],
+    [nextEncoded, email, password, confirm],
   );
 
   const handleGoogle = useCallback(async () => {
@@ -113,62 +107,48 @@ export default function SignUpView() {
 
   return (
     <AuthPageShell>
-      <div className={authCardClass}>
-        <div className="mb-3 text-center">
-          <h1 className={authTitleClass}>Crée ton compte Révision facile</h1>
-          <p className={`${authSubtitleClass} max-[380px]:hidden`}>
-            Retrouve tes fiches et progresse sur le programme.
-          </p>
-          {googleError && (
-            <p className={`${authAlertClass} border-red-200 bg-red-50 text-red-800`} role="alert">
-              {googleError}
-            </p>
-          )}
-          {formError ? (
-            <p className={`${authAlertClass} border-red-200 bg-red-50 text-red-800`} role="alert">
-              {formError}
-            </p>
-          ) : null}
-          {infoMessage ? (
-            <p className={`${authAlertClass} border-indigo-200 bg-indigo-50 text-indigo-900`} role="status">
-              {infoMessage}
-            </p>
-          ) : null}
-        </div>
+      <AuthCard title="Crée ton compte" subtitle="Gratuit — ton prénom sera demandé juste après.">
+        <AuthModeTabs mode="signup" nextEncoded={nextEncoded} />
+
+        {(googleError || formError || infoMessage) && (
+          <div className="mb-3 space-y-2">
+            {googleError && (
+              <p className={`${authAlertClass} border-red-200 bg-red-50 text-red-800`} role="alert">
+                {googleError}
+              </p>
+            )}
+            {formError ? (
+              <p className={`${authAlertClass} border-red-200 bg-red-50 text-red-800`} role="alert">
+                {formError}
+              </p>
+            ) : null}
+            {infoMessage ? (
+              <p className={`${authAlertClass} border-indigo-200 bg-indigo-50 text-indigo-900`} role="status">
+                {infoMessage}
+              </p>
+            ) : null}
+          </div>
+        )}
 
         <form className={authFormClass} onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-            <div className={`${authFieldClass} sm:col-span-2`}>
-              <label htmlFor={nameId} className={authLabelClass}>
-                Prénom ou pseudo
-              </label>
-              <input
-                id={nameId}
-                name="name"
-                type="text"
-                autoComplete="name"
-                placeholder="Camille"
-                value={name}
-                onChange={(ev) => setName(ev.target.value)}
-                className={authInputClass}
-              />
-            </div>
-            <div className={`${authFieldClass} sm:col-span-2`}>
-              <label htmlFor={emailId} className={authLabelClass}>
-                E-mail
-              </label>
-              <input
-                id={emailId}
-                name="email"
-                type="email"
-                autoComplete="email"
-                placeholder="ton@email.com"
-                required
-                value={email}
-                onChange={(ev) => setEmail(ev.target.value)}
-                className={authInputClass}
-              />
-            </div>
+          <div className={authFieldClass}>
+            <label htmlFor={emailId} className={authLabelClass}>
+              E-mail
+            </label>
+            <input
+              id={emailId}
+              name="email"
+              type="email"
+              autoComplete="email"
+              inputMode="email"
+              placeholder="ton@email.com"
+              required
+              value={email}
+              onChange={(ev) => setEmail(ev.target.value)}
+              className={authInputClass}
+            />
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className={authFieldClass}>
               <label htmlFor={passwordId} className={authLabelClass}>
                 Mot de passe
@@ -203,46 +183,33 @@ export default function SignUpView() {
 
         <div className={authDividerClass}>
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-200/50" />
+            <div className="w-full border-t border-slate-200" />
           </div>
-          <div className="relative flex justify-center text-xs">
-            <span className="bg-white px-2 text-slate-500">Ou continuer avec</span>
+          <div className="relative flex justify-center text-[11px] font-medium uppercase tracking-wide">
+            <span className="bg-white px-2 text-slate-400">ou</span>
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleGoogle}
-          disabled={googlePending}
-          className={authGoogleBtnClass}
-        >
+        <button type="button" onClick={handleGoogle} disabled={googlePending} className={authGoogleBtnClass}>
           <GoogleMark />
-          <span>{googlePending ? "Redirection…" : "S’inscrire avec Google"}</span>
+          <span>{googlePending ? "Redirection…" : "Continuer avec Google"}</span>
         </button>
 
-        <div className="mt-3 space-y-2 text-center">
-          <p className="text-[11px] leading-snug text-slate-500">
-            En créant un compte, tu acceptes les{" "}
-            <Link href="/cgu" className="font-medium text-indigo-600 hover:underline">
-              CGU
-            </Link>{" "}
-            et la{" "}
-            <Link href="/confidentialite" className="font-medium text-indigo-600 hover:underline">
-              confidentialité
-            </Link>
-            .
-          </p>
-          <p className="text-xs text-slate-500 sm:text-sm">
-            Déjà un compte ?{" "}
-            <Link
-              href={signInHref}
-              className="font-medium text-indigo-600 transition-colors hover:text-indigo-600/80 hover:underline"
-            >
-              Se connecter
-            </Link>
-          </p>
-        </div>
-      </div>
+        <p className="mt-3 text-center text-[11px] leading-snug text-slate-400">
+          En t’inscrivant, tu acceptes les{" "}
+          <Link href="/cgu" className="text-slate-500 underline-offset-2 hover:text-indigo-600 hover:underline">
+            CGU
+          </Link>{" "}
+          et la{" "}
+          <Link
+            href="/confidentialite"
+            className="text-slate-500 underline-offset-2 hover:text-indigo-600 hover:underline"
+          >
+            confidentialité
+          </Link>
+          .
+        </p>
+      </AuthCard>
     </AuthPageShell>
   );
 }

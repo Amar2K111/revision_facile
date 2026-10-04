@@ -7,12 +7,13 @@ import { POST_LOGIN_DEFAULT_PATH, sanitizeNextPath } from "../../lib/authRedirec
 import { createSupabaseBrowserClient } from "../../lib/supabase/client";
 import { signInWithGoogleClient } from "../../lib/auth/signInWithGoogle";
 import { AppLoadingScreen } from "../AppLoadingScreen";
+import { AuthCard } from "./AuthCard";
+import { AuthModeTabs } from "./AuthModeTabs";
 import AuthPageShell from "./AuthPageShell";
 import GoogleMark from "./GoogleMark";
 import { PasswordInput } from "./PasswordInput";
 import {
   authAlertClass,
-  authCardClass,
   authDividerClass,
   authFieldClass,
   authFormClass,
@@ -20,8 +21,6 @@ import {
   authInputClass,
   authLabelClass,
   authPrimaryBtnClass,
-  authSubtitleClass,
-  authTitleClass,
 } from "./authFormStyles";
 
 export default function SignInView() {
@@ -37,9 +36,8 @@ export default function SignInView() {
   const [redirecting, setRedirecting] = useState(false);
 
   const next = sanitizeNextPath(searchParams.get("next") ?? POST_LOGIN_DEFAULT_PATH);
+  const nextEncoded = encodeURIComponent(next);
   const oauthFailed = searchParams.get("error") === "oauth";
-
-  const persistNextHref = `/auth/signup?next=${encodeURIComponent(next)}`;
 
   const handleSubmit = useCallback(
     async (e) => {
@@ -83,24 +81,24 @@ export default function SignInView() {
 
   return (
     <AuthPageShell>
-      <div className={authCardClass}>
-        <div className="mb-3 text-center">
-          <h1 className={authTitleClass}>Connecte-toi pour générer tes fiches</h1>
-          <p className={`${authSubtitleClass} max-[380px]:hidden`}>
-            Fiches, entraînement oral et quiz sur ton programme.
-          </p>
-          {(oauthFailed || googleError) && (
-            <p className={`${authAlertClass} border-red-200 bg-red-50 text-red-800`} role="alert">
-              {googleError ??
-                "La connexion Google a échoué. Vérifie la configuration Supabase (provider Google, URL de redirection)."}
-            </p>
-          )}
-          {formError ? (
-            <p className={`${authAlertClass} border-red-200 bg-red-50 text-red-800`} role="alert">
-              {formError}
-            </p>
-          ) : null}
-        </div>
+      <AuthCard title="Bon retour" subtitle="Connecte-toi pour générer tes fiches.">
+        <AuthModeTabs mode="signin" nextEncoded={nextEncoded} />
+
+        {(oauthFailed || googleError || formError) && (
+          <div className="mb-3 space-y-2">
+            {(oauthFailed || googleError) && (
+              <p className={`${authAlertClass} border-red-200 bg-red-50 text-red-800`} role="alert">
+                {googleError ??
+                  "La connexion Google a échoué. Réessaie ou utilise ton e-mail."}
+              </p>
+            )}
+            {formError ? (
+              <p className={`${authAlertClass} border-red-200 bg-red-50 text-red-800`} role="alert">
+                {formError}
+              </p>
+            ) : null}
+          </div>
+        )}
 
         <form className={authFormClass} onSubmit={handleSubmit}>
           <div className={authFieldClass}>
@@ -112,6 +110,7 @@ export default function SignInView() {
               name="email"
               type="email"
               autoComplete="email"
+              inputMode="email"
               placeholder="ton@email.com"
               required
               value={email}
@@ -139,33 +138,28 @@ export default function SignInView() {
 
         <div className={authDividerClass}>
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-200/50" />
+            <div className="w-full border-t border-slate-200" />
           </div>
-          <div className="relative flex justify-center text-xs">
-            <span className="bg-white px-2 text-slate-500">Ou continuer avec</span>
+          <div className="relative flex justify-center text-[11px] font-medium uppercase tracking-wide">
+            <span className="bg-white px-2 text-slate-400">ou</span>
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleGoogle}
-          disabled={googlePending}
-          className={authGoogleBtnClass}
-        >
+        <button type="button" onClick={handleGoogle} disabled={googlePending} className={authGoogleBtnClass}>
           <GoogleMark />
-          <span>{googlePending ? "Redirection…" : "Se connecter avec Google"}</span>
+          <span>{googlePending ? "Redirection…" : "Continuer avec Google"}</span>
         </button>
 
-        <p className="mt-3 text-center text-xs text-slate-500 sm:text-sm">
+        <p className="mt-3 text-center text-xs text-slate-500">
           Pas encore de compte ?{" "}
           <Link
-            href={persistNextHref}
-            className="font-medium text-indigo-600 transition-colors hover:text-indigo-600/80 hover:underline"
+            href={`/auth/signup?next=${nextEncoded}`}
+            className="font-semibold text-indigo-600 hover:underline"
           >
             S’inscrire
           </Link>
         </p>
-      </div>
+      </AuthCard>
     </AuthPageShell>
   );
 }
