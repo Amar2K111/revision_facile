@@ -5,6 +5,10 @@
 # Stripe appelle l’URL sans JWT : ne pas exiger Authorization.
 verify_jwt = false
 
+[auth.email]
+# Inscription e-mail : connexion immédiate, sans e-mail de confirmation.
+enable_confirmations = false
+
 [auth.email.template.confirmation]
 subject = "Confirme ton adresse e-mail"
 content_path = "./supabase/templates/confirmation-fr.html"

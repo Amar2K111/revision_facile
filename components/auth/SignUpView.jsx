@@ -69,16 +69,14 @@ export default function SignUpView() {
         );
         return;
       }
-      if (data.session && data.user?.id) {
+      if (data.user?.id) {
         setRedirecting(true);
         window.location.replace(
           `/auth/continue?next=${encodeURIComponent(POST_LOGIN_DEFAULT_PATH)}`,
         );
         return;
       }
-      setInfoMessage(
-        "Compte créé. Si tu ne te connectes pas tout de suite, vérifie ta boîte mail pour confirmer ton adresse (selon les réglages du projet).",
-      );
+      setInfoMessage("Compte créé. Tu peux te connecter avec ton e-mail et ton mot de passe.");
     },
     [next, email, password, confirm, name],
   );
