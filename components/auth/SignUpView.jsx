@@ -33,7 +33,6 @@ export default function SignUpView() {
   const [confirm, setConfirm] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState(null);
-  const [infoMessage, setInfoMessage] = useState(null);
   const [googlePending, setGooglePending] = useState(false);
   const [googleError, setGoogleError] = useState(null);
   const [redirecting, setRedirecting] = useState(false);
@@ -45,7 +44,6 @@ export default function SignUpView() {
     async (e) => {
       e.preventDefault();
       setFormError(null);
-      setInfoMessage(null);
       if (password !== confirm) {
         setFormError("Les mots de passe ne correspondent pas.");
         return;
@@ -81,12 +79,14 @@ export default function SignUpView() {
         return;
       }
       if (data.user?.id) {
-        setInfoMessage(
-          "Compte créé ! Ouvre l’e-mail reçu et clique sur « Confirmer mon e-mail » (vérifie les spams).",
-        );
+        setRedirecting(true);
+        const params = new URLSearchParams({ next });
+        if (email.trim()) {
+          params.set("email", email.trim());
+        }
+        window.location.replace(`/auth/check-email?${params.toString()}`);
         return;
       }
-      setInfoMessage("Compte créé. Vérifie ta boîte mail pour finaliser l’inscription.");
     },
     [nextEncoded, email, password, confirm],
   );
@@ -110,7 +110,7 @@ export default function SignUpView() {
       <AuthCard title="Crée ton compte" subtitle="Gratuit — ton prénom sera demandé juste après.">
         <AuthModeTabs mode="signup" nextEncoded={nextEncoded} />
 
-        {(googleError || formError || infoMessage) && (
+        {(googleError || formError) && (
           <div className="mb-3 space-y-2">
             {googleError && (
               <p className={`${authAlertClass} border-red-200 bg-red-50 text-red-800`} role="alert">
@@ -120,11 +120,6 @@ export default function SignUpView() {
             {formError ? (
               <p className={`${authAlertClass} border-red-200 bg-red-50 text-red-800`} role="alert">
                 {formError}
-              </p>
-            ) : null}
-            {infoMessage ? (
-              <p className={`${authAlertClass} border-indigo-200 bg-indigo-50 text-indigo-900`} role="status">
-                {infoMessage}
               </p>
             ) : null}
           </div>
