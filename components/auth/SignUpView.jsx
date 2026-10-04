@@ -68,20 +68,9 @@ export default function SignUpView() {
         setFormError(mapAuthErrorMessage(error.message, "Inscription impossible pour le moment."));
         return;
       }
-      if (data.session && data.user?.id) {
-        setRedirecting(true);
-        window.location.replace(
-          `/auth/continue?next=${encodeURIComponent(POST_LOGIN_DEFAULT_PATH)}`,
-        );
-        return;
-      }
       if (data.user?.id) {
         setRedirecting(true);
-        const params = new URLSearchParams({ next });
-        if (email.trim()) {
-          params.set("email", email.trim());
-        }
-        window.location.replace(`/auth/check-email?${params.toString()}`);
+        window.location.replace(`/auth/continue?next=${encodeURIComponent(next)}`);
         return;
       }
     },

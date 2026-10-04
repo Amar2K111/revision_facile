@@ -6,8 +6,8 @@
 verify_jwt = false
 
 [auth.email]
-# Inscription e-mail : confirmation obligatoire avant connexion.
-enable_confirmations = true
+# Inscription e-mail : connexion immédiate, sans confirmation par mail.
+enable_confirmations = false
 
 [auth.email.template.confirmation]
 subject = "Confirme ton adresse e-mail"
