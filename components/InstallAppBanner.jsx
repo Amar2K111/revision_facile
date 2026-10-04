@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-const HIDE_BANNER_PATHS = ["/fiche", "/paywall"];
+const HIDE_BANNER_PATHS = ["/fiche", "/paywall", "/auth"];
 
 const DISMISS_KEY = "revision-facile-install-dismissed";
 

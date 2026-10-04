@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 
-const inputClass =
-  "w-full cursor-text rounded-lg border border-gray-200 bg-white py-3 pl-4 pr-11 text-base text-neutral-950 placeholder:text-slate-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 min-h-[44px] transition-all duration-200";
+import { authInputClass } from "./authFormStyles";
 
 function EyeIcon({ className }) {
   return (
@@ -52,7 +51,7 @@ export function PasswordInput({
         required={required}
         value={value}
         onChange={onChange}
-        className={inputClass}
+        className={`${authInputClass} pr-11`}
       />
       <button
         type="button"

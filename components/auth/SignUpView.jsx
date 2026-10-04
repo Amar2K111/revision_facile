@@ -10,9 +10,19 @@ import { AppLoadingScreen } from "../AppLoadingScreen";
 import AuthPageShell from "./AuthPageShell";
 import GoogleMark from "./GoogleMark";
 import { PasswordInput } from "./PasswordInput";
-
-const inputClass =
-  "w-full cursor-text rounded-lg border border-gray-200 bg-white px-4 py-3 text-base text-neutral-950 placeholder:text-slate-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 min-h-[44px] transition-all duration-200";
+import {
+  authAlertClass,
+  authCardClass,
+  authDividerClass,
+  authFieldClass,
+  authFormClass,
+  authGoogleBtnClass,
+  authInputClass,
+  authLabelClass,
+  authPrimaryBtnClass,
+  authSubtitleClass,
+  authTitleClass,
+} from "./authFormStyles";
 
 export default function SignUpView() {
   const searchParams = useSearchParams();
@@ -78,7 +88,7 @@ export default function SignUpView() {
       }
       if (data.user?.id) {
         setInfoMessage(
-          "Compte créé ! Ouvre l’e-mail qu’on vient de t’envoyer et clique sur « Confirmer mon e-mail » pour te connecter. Pense à vérifier les spams.",
+          "Compte créé ! Ouvre l’e-mail reçu et clique sur « Confirmer mon e-mail » (vérifie les spams).",
         );
         return;
       }
@@ -103,106 +113,99 @@ export default function SignUpView() {
 
   return (
     <AuthPageShell>
-      <div className="rounded-[2rem] border border-gray-200 bg-white p-5 shadow-lg sm:p-6 md:p-8">
-        <div className="mb-5 text-center sm:mb-6">
-          <h1 className="bg-gradient-to-r from-slate-900 to-indigo-800 bg-clip-text px-2 font-[family-name:var(--font-geist-sans)] text-xl font-medium tracking-tight text-transparent sm:text-2xl md:text-3xl">
-            Crée ton compte Révision facile.
-          </h1>
-          <p className="mt-2 px-2 text-sm text-slate-500 sm:text-base">
-            Enregistre-toi pour retrouver tes fiches et progresser sur le programme.
+      <div className={authCardClass}>
+        <div className="mb-3 text-center">
+          <h1 className={authTitleClass}>Crée ton compte Révision facile</h1>
+          <p className={`${authSubtitleClass} max-[380px]:hidden`}>
+            Retrouve tes fiches et progresse sur le programme.
           </p>
           {googleError && (
-            <p className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">
+            <p className={`${authAlertClass} border-red-200 bg-red-50 text-red-800`} role="alert">
               {googleError}
             </p>
           )}
           {formError ? (
-            <p className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">
+            <p className={`${authAlertClass} border-red-200 bg-red-50 text-red-800`} role="alert">
               {formError}
             </p>
           ) : null}
           {infoMessage ? (
-            <p className="mt-3 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm text-indigo-900" role="status">
+            <p className={`${authAlertClass} border-indigo-200 bg-indigo-50 text-indigo-900`} role="status">
               {infoMessage}
             </p>
           ) : null}
         </div>
 
-        <form className="space-y-5 sm:space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-2">
-            <label htmlFor={nameId} className="block text-sm font-medium tracking-tight text-black">
-              Prénom ou pseudo
-            </label>
-            <input
-              id={nameId}
-              name="name"
-              type="text"
-              autoComplete="name"
-              placeholder="Camille"
-              value={name}
-              onChange={(ev) => setName(ev.target.value)}
-              className={inputClass}
-            />
+        <form className={authFormClass} onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            <div className={`${authFieldClass} sm:col-span-2`}>
+              <label htmlFor={nameId} className={authLabelClass}>
+                Prénom ou pseudo
+              </label>
+              <input
+                id={nameId}
+                name="name"
+                type="text"
+                autoComplete="name"
+                placeholder="Camille"
+                value={name}
+                onChange={(ev) => setName(ev.target.value)}
+                className={authInputClass}
+              />
+            </div>
+            <div className={`${authFieldClass} sm:col-span-2`}>
+              <label htmlFor={emailId} className={authLabelClass}>
+                E-mail
+              </label>
+              <input
+                id={emailId}
+                name="email"
+                type="email"
+                autoComplete="email"
+                placeholder="ton@email.com"
+                required
+                value={email}
+                onChange={(ev) => setEmail(ev.target.value)}
+                className={authInputClass}
+              />
+            </div>
+            <div className={authFieldClass}>
+              <label htmlFor={passwordId} className={authLabelClass}>
+                Mot de passe
+              </label>
+              <PasswordInput
+                id={passwordId}
+                name="password"
+                autoComplete="new-password"
+                required
+                value={password}
+                onChange={(ev) => setPassword(ev.target.value)}
+              />
+            </div>
+            <div className={authFieldClass}>
+              <label htmlFor={confirmId} className={authLabelClass}>
+                Confirmer
+              </label>
+              <PasswordInput
+                id={confirmId}
+                name="confirm"
+                autoComplete="new-password"
+                required
+                value={confirm}
+                onChange={(ev) => setConfirm(ev.target.value)}
+              />
+            </div>
           </div>
-          <div className="space-y-2">
-            <label htmlFor={emailId} className="block text-sm font-medium tracking-tight text-black">
-              E-mail
-            </label>
-            <input
-              id={emailId}
-              name="email"
-              type="email"
-              autoComplete="email"
-              placeholder="ton@email.com"
-              required
-              value={email}
-              onChange={(ev) => setEmail(ev.target.value)}
-              className={inputClass}
-            />
-          </div>
-          <div className="space-y-2">
-            <label
-              htmlFor={passwordId}
-              className="block text-sm font-medium tracking-tight text-black"
-            >
-              Mot de passe
-            </label>
-            <PasswordInput
-              id={passwordId}
-              name="password"
-              autoComplete="new-password"
-              required
-              value={password}
-              onChange={(ev) => setPassword(ev.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <label htmlFor={confirmId} className="block text-sm font-medium tracking-tight text-black">
-              Confirmer le mot de passe
-            </label>
-            <PasswordInput
-              id={confirmId}
-              name="confirm"
-              autoComplete="new-password"
-              required
-              value={confirm}
-              onChange={(ev) => setConfirm(ev.target.value)}
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={submitting}
-            className="relative w-full overflow-hidden rounded-[10px] bg-gradient-to-br from-indigo-600 via-indigo-600 to-blue-700 px-6 py-3.5 text-base font-medium text-white shadow-lg transition hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-white disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-12 sm:px-8 sm:text-lg min-h-[52px]"
-          >
-            <span className="relative z-10">{submitting ? "Création…" : "Créer mon compte"}</span>
+          <button type="submit" disabled={submitting} className={authPrimaryBtnClass}>
+            {submitting ? "Création…" : "Créer mon compte"}
           </button>
         </form>
 
-        <div className="relative my-5 sm:my-6">
+        <div className={authDividerClass}>
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-200/50" />
           </div>
-          <div className="relative flex justify-center text-sm">
+          <div className="relative flex justify-center text-xs">
             <span className="bg-white px-2 text-slate-500">Ou continuer avec</span>
           </div>
         </div>
@@ -211,29 +214,29 @@ export default function SignUpView() {
           type="button"
           onClick={handleGoogle}
           disabled={googlePending}
-          className="flex w-full min-h-[52px] items-center justify-center space-x-2 rounded-[10px] border border-gray-100 bg-white px-6 py-3.5 text-base font-medium text-black shadow-sm transition hover:bg-white hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 focus:ring-offset-white enabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-12 sm:px-8 sm:text-lg"
+          className={authGoogleBtnClass}
         >
           <GoogleMark />
           <span>{googlePending ? "Redirection…" : "S’inscrire avec Google"}</span>
         </button>
 
-        <div className="mt-6 text-center">
-          <p className="text-xs leading-relaxed text-slate-500">
+        <div className="mt-3 space-y-2 text-center">
+          <p className="text-[11px] leading-snug text-slate-500">
             En créant un compte, tu acceptes les{" "}
             <Link href="/cgu" className="font-medium text-indigo-600 hover:underline">
               CGU
             </Link>{" "}
             et la{" "}
             <Link href="/confidentialite" className="font-medium text-indigo-600 hover:underline">
-              politique de confidentialité
+              confidentialité
             </Link>
             .
           </p>
-          <p className="mt-4 text-sm text-slate-500 md:text-base">
+          <p className="text-xs text-slate-500 sm:text-sm">
             Déjà un compte ?{" "}
             <Link
               href={signInHref}
-              className="font-medium text-indigo-600 transition-colors duration-300 hover:text-indigo-600/80 hover:underline"
+              className="font-medium text-indigo-600 transition-colors hover:text-indigo-600/80 hover:underline"
             >
               Se connecter
             </Link>
